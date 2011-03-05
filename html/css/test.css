@@ -1,0 +1,26 @@
+
+body
+{ 
+  font-family: Arial,sans-serif;
+}
+
+div#arena
+{ 
+  position:relative;
+  width: 600px;
+  height: 600px;
+  background-color: #ffffaa;
+}
+
+div.newsitem
+{ 
+  position:absolute;
+  background-color:green;
+  max-width:200px;
+  padding:4px;
+}
+
+div.newsitem.ui-draggable-dragging
+{ 
+  background-color:lightgreen;
+}
