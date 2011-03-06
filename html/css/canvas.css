@@ -1,0 +1,13 @@
+
+body
+{ 
+  font-family: Arial,sans-serif;
+}
+
+canvas#arena
+{ 
+  position:relative;
+  width: 600px;
+  height: 600px;
+}
+

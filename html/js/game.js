@@ -45,7 +45,7 @@ NewsItem = Backbone.View.extend(
 		if(this.velocity >= 0) {
 		    this.velocity = -this.velocity * NewsItem.DAMPING;
 		}
-		if(Math.abs(this.velocity) < NewsItem.RESTING_THRESHOLD) {
+		if(Math.abs(this.velocity) < (NewsItem.GRAVITY / NewsItem.RESTING_THRESHOLD_DIVISOR)) {
 		    item.css("top", this.max_top - item.outerHeight() - this.arena.position().top);
 		    this.state = "resting";
 		}
@@ -69,14 +69,14 @@ NewsItem = Backbone.View.extend(
 	}
     },
     {
-	GRAVITY : 20.0,
+	GRAVITY : 200.0,
 	DAMPING : .5,
-	RESTING_THRESHOLD : .4
+	RESTING_THRESHOLD_DIVISOR : 25.0
     }
 
 );
 
-FRAMERATE = 15.0;
+FRAMERATE = 30.0;
 
 var newsitems = [];
 
