@@ -9,6 +9,7 @@ var NewsItem = Backbone.Model.extend(
             var height = 30 + Math.floor(Math.random() * 30);
             var left = game.canvas.width / 2 - width / 2;
             var top = 0;
+            this.drag_offset = null;
             this.velocity = 0.0;
             this.frame = new Rect(left, top, width, height);
             this.color = "#99f";
@@ -31,12 +32,14 @@ var NewsItem = Backbone.Model.extend(
                     this.frame.move(this.frame.left, collision_line);
                     this.set({ state : "resting"});
                 }
-                this.draw(game);
                 break;
+            case "dragging":
+                this.frame.move(game.mousepos);
+                this.frame.translate(this.drag_offset);
             case "resting":
             case "frozen":
-                this.draw(game);
             }
+            this.draw(game);
         },
 
         collides : function(game) {
@@ -82,7 +85,7 @@ Game.prototype = {
 
     __init__ : function(canvas, fps) {
         _.bindAll(this, "run", "start", "render_debug_info", "add",
-                 "click", "pre_rendering", "over");
+                 "mousedown", "mousemove", "mouseup", "pre_rendering", "over");
         this.game_items = new GameItems();
         this.fps = fps;
         this.running = false;
@@ -90,9 +93,10 @@ Game.prototype = {
         this.canvas = canvas;
         this.max_fps = 0;
         this.min_fps = 1000;
+        this.mousepos = null;
         this.ctx = this.canvas.getContext("2d");
         this.frame = new Rect(0, 0, canvas.width, canvas.height);
-        $(canvas).click(this.click);
+        $(canvas).mousedown(this.mousedown).mousemove(this.mousemove).mouseup(this.mouseup);
         this.state = "running";
     },
 
@@ -105,22 +109,54 @@ Game.prototype = {
                                 });
     },
 
-    click : function(e) {
+    mousedown : function(e) {
         var c = $(this.canvas);
         var x = Math.floor((e.pageX - c.offset().left));
         var y = Math.floor((e.pageY - c.offset().top));
-        console.log({x : x, y : y});
+        this.mousepos = {
+            x : x,
+            y : y
+        };
+        this.forEach(
+            function(item) {
+                if(item.frame.contains(x, y)) {
+                    item.drag_offset = {
+                        x : item.frame.x - x,
+                        y : item.frame.y - y
+                        
+                    };
+                    item.set({"state" : "dragging"});
+                    console.log(item.frame);
+                } else {
+                    item.clicked = false;
+                }
+            }
+        );
+    },
+
+    mousemove : function(e) {
+        var c = $(this.canvas);
+        var x = Math.floor((e.pageX - c.offset().left));
+        var y = Math.floor((e.pageY - c.offset().top));
+        
+        //var dx = x - this.mousepos.x;
+        //var dy = y - this.mousepos.y;
+        this.mousepos = {
+            x : x,
+            y : y
+        };
+    },
+
+    mouseup : function(e) {
         this.forEach(function(item)
                      {
-                         if(item.frame.contains(x, y)) {
-                             item.clicked = true;
-                             console.log(item.frame);
-                         } else {
-                             item.clicked = false;
+                         if(item.get("state") == "dragging") {
+                             item.set({"state" : "frozen"});
                          }
                      }
                     );
     },
+
 
     start : function() {
         this.running = true;
@@ -176,7 +212,7 @@ Game.prototype = {
         this.game_items.sort();
         var resting_items = this.topmost_line = this.game_items.filter(
                 function(gi) {
-                    return gi.get("state") != "falling";
+                    return gi.get("state") == "resting";
                 }
             );
         if(resting_items.length == 0) {
@@ -222,6 +258,7 @@ $(function() {
           var ni = new NewsItem({ game : document.game });
           if(!ni.placable()) {
               document.game.over();
+              return;
           }
           document.game.add(ni);
           setTimeout(spawn, 1000);
