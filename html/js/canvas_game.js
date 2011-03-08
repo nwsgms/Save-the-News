@@ -3,7 +3,7 @@ var NewsItem = Backbone.Model.extend(
     {
         initialize : function() {
             _.bindAll(this, "render", "draw", "collides",
-                      "placable");
+                      "placable", "statechanged");
             var game = this.get("game");
             var width = 50 + Math.floor(Math.random() * 100);
             var height = 30 + Math.floor(Math.random() * 30);
@@ -15,6 +15,30 @@ var NewsItem = Backbone.Model.extend(
             this.color = "#99f";
             this.clicked = false;
             this.set({ state : "falling"});
+            this.bind("change:state", this.statechanged);
+        },
+
+        statechanged : function() {
+            var game = this.get("game");
+            switch(this.get("state")) {
+            case "resting":
+                this.velocity = .0;
+                break;
+            case "floating":
+                // we fly back to bottom position
+                var left = game.canvas.width / 2 - this.frame.width / 2;
+                var top = game.canvas.height - this.frame.height;
+                var dx = (left - this.frame.left) / game.FLOAT_TIME;
+                var dy = (top - this.frame.top) / game.FLOAT_TIME;
+                this.float = {
+                    left : left,
+                    top : top,
+                    dx : dx,
+                    dy : dy
+                };
+                break;
+            }
+
         },
 
         placable : function() {
@@ -36,8 +60,18 @@ var NewsItem = Backbone.Model.extend(
             case "dragging":
                 this.frame.move(game.mousepos);
                 this.frame.translate(this.drag_offset);
-            case "resting":
-            case "frozen":
+                break;
+            case "floating":
+                this.frame.translate(this.float.dx * elapsed, 
+                                     this.float.dy * elapsed);
+                function close_enough(a, b) {
+                    return Math.abs(a - b) < 2.0;
+                }
+                if(close_enough(this.frame.left, this.float.left) && 
+                   close_enough(this.frame.top, this.float.top)) {
+                    this.frame.move(this.float.left, this.float.top);
+                    this.set({"state" : "resting"});
+                }
             }
             this.draw(game);
         },
@@ -82,6 +116,7 @@ function Game() {
 Game.prototype = {
     GRAVITY : 10.0,
     BACKGROUND_COLOR : "#ffa",
+    FLOAT_TIME : .8,
 
     __init__ : function(canvas, fps) {
         _.bindAll(this, "run", "start", "render_debug_info", "add",
@@ -110,6 +145,8 @@ Game.prototype = {
     },
 
     mousedown : function(e) {
+        if(this.state == "over")
+            return;
         var c = $(this.canvas);
         var x = Math.floor((e.pageX - c.offset().left));
         var y = Math.floor((e.pageY - c.offset().top));
@@ -118,23 +155,43 @@ Game.prototype = {
             y : y
         };
         this.forEach(
-            function(item) {
-                if(item.frame.contains(x, y)) {
-                    item.drag_offset = {
-                        x : item.frame.x - x,
-                        y : item.frame.y - y
-                        
-                    };
-                    item.set({"state" : "dragging"});
-                    console.log(item.frame);
-                } else {
-                    item.clicked = false;
-                }
-            }
+            _.bind(
+                function(item) {
+                    if(item.frame.contains(x, y)) {
+                        item.drag_offset = {
+                            x : item.frame.x - x,
+                            y : item.frame.y - y
+                            
+                        };
+                        if(item.get("state") == "resting") {
+                            var unrest = true;
+                            this.forEach(function(resting_item) {
+                                             if(item == resting_item) {
+                                                 unrest = false;
+                                                 return;
+                                             }
+                                             if(unrest) {
+                                                 if(resting_item.get("state") == "resting") {
+                                                     resting_item.set({"state" : "falling"});
+                                                     
+                                                 }
+                                             }
+                                         }
+                                        );
+                        }
+                        item.set({"state" : "dragging"});
+                        console.log(item.frame);
+                    } else {
+                        item.clicked = false;
+                    }
+                    
+            }, this)
         );
     },
 
     mousemove : function(e) {
+        if(this.state == "over")
+            return;
         var c = $(this.canvas);
         var x = Math.floor((e.pageX - c.offset().left));
         var y = Math.floor((e.pageY - c.offset().top));
@@ -148,10 +205,12 @@ Game.prototype = {
     },
 
     mouseup : function(e) {
+        if(this.state == "over")
+            return;
         this.forEach(function(item)
                      {
                          if(item.get("state") == "dragging") {
-                             item.set({"state" : "frozen"});
+                             item.set({"state" : "floating"});
                          }
                      }
                     );
