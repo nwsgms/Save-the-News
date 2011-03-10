@@ -21,9 +21,6 @@ var NewsItem = Backbone.Model.extend(
         statechanged : function() {
             var game = this.get("game");
             switch(this.get("state")) {
-            case "resting":
-                this.velocity = .0;
-                break;
             case "floating":
                 // we fly back to bottom position
                 var left = game.canvas.width / 2 - this.frame.width / 2;
@@ -42,8 +39,12 @@ var NewsItem = Backbone.Model.extend(
         },
 
         placable : function() {
-            var gap = this.get("game").topmost_line;
-            return gap >= this.frame.height;
+	    var game = this.get("game");
+	    if(game.length > 0) {
+		var gap = game.at(0).frame.top;
+		return gap >= this.frame.height;
+	    }
+	    return true;
         },
 
         render : function(game, elapsed) {
@@ -54,7 +55,7 @@ var NewsItem = Backbone.Model.extend(
                 var collision_line = this.collides(game);
                 if(collision_line !== null) {
                     this.frame.move(this.frame.left, collision_line);
-                    this.set({ state : "resting"});
+		    this.velocity = .0;
                 }
                 break;
             case "dragging":
@@ -70,15 +71,37 @@ var NewsItem = Backbone.Model.extend(
                 if(close_enough(this.frame.left, this.float.left) && 
                    close_enough(this.frame.top, this.float.top)) {
                     this.frame.move(this.float.left, this.float.top);
-                    this.set({"state" : "resting"});
+                    this.set({"state" : "falling"});
                 }
             }
             this.draw(game);
         },
 
         collides : function(game) {
-            if(this.frame.bottom >= game.topmost_line) {
-                return game.topmost_line - this.frame.height;
+            // if we are the only one
+            // in there, the collision happens with the bottom
+            var candidate_frame = null;
+            candidate_frame = game.bottom_collision_frame();
+            // the item-collection guarantees that all the 
+            // items are in descending order. So once we are beyond 
+            // ourselves, the next item has the frame in question
+            var me = this;
+            var found = false;
+            var items_below_me = game.filter(
+		function(other)
+                {
+                    if(other == me) {
+                        found = true;
+                        return false;
+                    }
+		    return found && other.get("state") == "falling";
+                }
+            );
+            if(items_below_me.length) {
+                candidate_frame = items_below_me[0].frame;
+            }
+            if(this.frame.overlaps(candidate_frame)) {
+                return candidate_frame.top - this.frame.height;
             }
             return null;
         },
@@ -120,8 +143,10 @@ Game.prototype = {
 
     __init__ : function(canvas, fps) {
         _.bindAll(this, "run", "start", "render_debug_info", "add",
-                 "mousedown", "mousemove", "mouseup", "pre_rendering", "over");
+                 "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
+                 "bottom_collision_frame", "filter", "at");
         this.game_items = new GameItems();
+	this.length = 0;
         this.fps = fps;
         this.running = false;
         this.debug = false;
@@ -135,6 +160,13 @@ Game.prototype = {
         this.state = "running";
     },
 
+    at : function(index) {
+	return this.game_items.at(index);
+    },
+
+    bottom_collision_frame : function() {
+        return new Rect(this.frame.width / 2, this.frame.bottom + 1, 1, 1);
+    },
 
     over : function() {
         this.state = "over";
@@ -271,7 +303,8 @@ Game.prototype = {
         this.game_items.sort();
         var resting_items = this.topmost_line = this.game_items.filter(
                 function(gi) {
-                    return gi.get("state") == "resting";
+                    return gi.get("state") == "resting" ||
+                        gi.get("state") == "falling_to_rest";
                 }
             );
         if(resting_items.length == 0) {
@@ -282,8 +315,12 @@ Game.prototype = {
     },
 
     forEach : function(iterator) {
-        this.game_items.forEach(iterator);
+        return this.game_items.forEach(iterator);
     },
+
+    filter : function(predicate) {
+       return this.game_items.filter(predicate);
+    }, 
 
     render_debug_info : function(ctx, elapsed) {
         var fps = Math.ceil(1.0 / elapsed);
@@ -305,6 +342,7 @@ Game.prototype = {
 
     add : function(game_item) {
         this.game_items.add(game_item);
+	this.length += 1;
     }
     
 };

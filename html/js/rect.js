@@ -63,8 +63,8 @@ Rect.prototype = {
     normalize : function() {
         this.top = this.y;
         this.left = this.x;
-        this.right = this.left + this.width;
-        this.bottom = this.top + this.height;
+        this.right = this.left + this.width - 1;
+        this.bottom = this.top + this.height - 1;
         this.topleft = {x : this.left, y : this.top};
         this.topright = {x : this.right, y : this.top};
         this.bottomleft = {x : this.left, y : this.bottom};
@@ -79,8 +79,19 @@ Rect.prototype = {
         return this.left <= x && this.right >= x && this.top <= y && this.bottom >= y;
     },
 
-    overlaps : function(other) {
-        return this.contains(other.topleft) || this.contains(other.topright) || this.contains(other.bottomleft) || this.contains(other.bottomright);
+    overlaps : function(other, descend) {
+        var res = this.contains(other.topleft) || this.contains(other.topright) 
+	    || this.contains(other.bottomleft) || this.contains(other.bottomright);
+	if(res)
+	    return true;
+	if(descend === false) {
+	    // we might be in cross-shape-land, let's verify
+	    return (this.left > other.left && this.right < other.right 
+		&& this.top < other.top && this.bottom > other.bottom) ||
+		(this.left < other.left && this.right > other.right 
+		&& this.top > other.top && this.bottom < other.bottom);
+	}
+	return other.overlaps(this, false);
     },
 
     inside : function(other) {
