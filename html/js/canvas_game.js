@@ -3,7 +3,7 @@ var NewsItem = Backbone.Model.extend(
     {
         initialize : function() {
             _.bindAll(this, "render", "draw", "collides",
-                      "placable", "statechanged");
+                      "placable", "statechanged", "floating");
             var game = this.get("game");
             var width = 50 + Math.floor(Math.random() * 100);
             var height = 30 + Math.floor(Math.random() * 30);
@@ -18,6 +18,10 @@ var NewsItem = Backbone.Model.extend(
             this.bind("change:state", this.statechanged);
         },
 
+	floating : function() {
+	    this.set({"state" : "floating"});
+	},
+
         statechanged : function() {
             var game = this.get("game");
             switch(this.get("state")) {
@@ -25,6 +29,16 @@ var NewsItem = Backbone.Model.extend(
                 // we fly back to bottom position
                 var left = game.canvas.width / 2 - this.frame.width / 2;
                 var top = game.canvas.height - this.frame.height;
+		// if we have other floaters, determine the highest 
+		// destination position of one of them, and that's
+		// ours then 
+		if(game.floaters.length) {
+		    game.floaters.forEach(
+			function(floater) {
+			    top = Math.min(floater.float.top - this.frame.height, top); 
+			}
+		    );
+		}
                 var dx = (left - this.frame.left) / game.FLOAT_TIME;
                 var dy = (top - this.frame.top) / game.FLOAT_TIME;
                 this.float = {
@@ -33,9 +47,10 @@ var NewsItem = Backbone.Model.extend(
                     dx : dx,
                     dy : dy
                 };
+		// finally, add ourselves to the floaters
+		this.get("game").floaters.add(this);
                 break;
             }
-
         },
 
         placable : function() {
@@ -71,6 +86,7 @@ var NewsItem = Backbone.Model.extend(
                 if(close_enough(this.frame.left, this.float.left) && 
                    close_enough(this.frame.top, this.float.top)) {
                     this.frame.move(this.float.left, this.float.top);
+		    game.floaters.remove(this);
                     this.set({"state" : "falling"});
                 }
             }
@@ -80,11 +96,12 @@ var NewsItem = Backbone.Model.extend(
         collides : function(game) {
             // if we are the only one
             // in there, the collision happens with the bottom
+	    // potentially this means floating up!
             var candidate_frame = null;
             candidate_frame = game.bottom_collision_frame();
             // the item-collection guarantees that all the 
             // items are in descending order. So once we are beyond 
-            // ourselves, the next item has the frame in question
+            // ourselves, the next falling item has the frame in question
             var me = this;
             var found = false;
             var items_below_me = game.filter(
@@ -137,16 +154,17 @@ function Game() {
 }
 
 Game.prototype = {
-    GRAVITY : 10.0,
+    GRAVITY : 2.0,
     BACKGROUND_COLOR : "#ffa",
     FLOAT_TIME : .8,
-    SPAWN_TIME : 1000,
+    SPAWN_TIME : 2000,
 
     __init__ : function(canvas, fps) {
         _.bindAll(this, "run", "start", "render_debug_info", "add",
                  "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
                  "bottom_collision_frame", "filter", "at", "spawn");
         this.game_items = new GameItems();
+	this.floaters = new GameItems();
 	this.length = 0;
         this.fps = fps;
         this.running = false;
@@ -159,6 +177,8 @@ Game.prototype = {
         this.frame = new Rect(0, 0, canvas.width, canvas.height);
         $(canvas).mousedown(this.mousedown).mousemove(this.mousemove).mouseup(this.mouseup);
         this.state = "running";
+	this.floaters_top = null;
+	this.floaters_top_velocity = .0;
 	this.spawn();
     },
 
@@ -177,6 +197,20 @@ Game.prototype = {
     },
 
     bottom_collision_frame : function() {
+	if(this.floaters.length) {
+	    var top = this.frame.bottom;
+	    this.floaters.forEach(
+		function(floater) {
+		    top = Math.min(top, floater.float.top);
+		}
+	    );
+	    if(this.floaters_top == null) {
+		
+	    } else {
+		
+	    }
+
+	}
         return new Rect(this.frame.width / 2, this.frame.bottom + 1, 1, 1);
     },
 
@@ -254,7 +288,7 @@ Game.prototype = {
         this.forEach(function(item)
                      {
                          if(item.get("state") == "dragging") {
-                             item.set({"state" : "floating"});
+                             item.floating();
                          }
                      }
                     );
