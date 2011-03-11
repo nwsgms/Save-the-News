@@ -41,11 +41,15 @@ var NewsItem = Backbone.Model.extend(
 		}
                 var dx = (left - this.frame.left) / game.FLOAT_TIME;
                 var dy = (top - this.frame.top) / game.FLOAT_TIME;
+		var do_ = -this.frame.height / game.FLOAT_TIME;
                 this.float = {
                     left : left,
                     top : top,
                     dx : dx,
-                    dy : dy
+                    dy : dy,
+		    offset : 0.0,
+		    do_ : do_,
+		    time : game.FLOAT_TIME
                 };
 		// finally, add ourselves to the floaters
 		this.get("game").floaters.add(this);
@@ -80,11 +84,9 @@ var NewsItem = Backbone.Model.extend(
             case "floating":
                 this.frame.translate(this.float.dx * elapsed, 
                                      this.float.dy * elapsed);
-                function close_enough(a, b) {
-                    return Math.abs(a - b) < 2.0;
-                }
-                if(close_enough(this.frame.left, this.float.left) && 
-                   close_enough(this.frame.top, this.float.top)) {
+		this.float.offset += elapsed * this.float.do_;
+		this.float.time -= elapsed;
+		if(this.float.time <= .0) {
                     this.frame.move(this.float.left, this.float.top);
 		    game.floaters.remove(this);
                     this.set({"state" : "falling"});
@@ -177,8 +179,6 @@ Game.prototype = {
         this.frame = new Rect(0, 0, canvas.width, canvas.height);
         $(canvas).mousedown(this.mousedown).mousemove(this.mousemove).mouseup(this.mouseup);
         this.state = "running";
-	this.floaters_top = null;
-	this.floaters_top_velocity = .0;
 	this.spawn();
     },
 
@@ -197,21 +197,13 @@ Game.prototype = {
     },
 
     bottom_collision_frame : function() {
-	if(this.floaters.length) {
-	    var top = this.frame.bottom;
-	    this.floaters.forEach(
-		function(floater) {
-		    top = Math.min(top, floater.float.top);
-		}
-	    );
-	    if(this.floaters_top == null) {
-		
-	    } else {
-		
+	var cl = this.frame.bottom + 1;
+	this.floaters.forEach(
+	    function(floater) {
+		cl += floater.float.offset;		
 	    }
-
-	}
-        return new Rect(this.frame.width / 2, this.frame.bottom + 1, 1, 1);
+	);
+        return new Rect(this.frame.width / 2, cl, 1, 1);
     },
 
     over : function() {
