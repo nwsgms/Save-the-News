@@ -140,11 +140,12 @@ Game.prototype = {
     GRAVITY : 10.0,
     BACKGROUND_COLOR : "#ffa",
     FLOAT_TIME : .8,
+    SPAWN_TIME : 1000,
 
     __init__ : function(canvas, fps) {
         _.bindAll(this, "run", "start", "render_debug_info", "add",
                  "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
-                 "bottom_collision_frame", "filter", "at");
+                 "bottom_collision_frame", "filter", "at", "spawn");
         this.game_items = new GameItems();
 	this.length = 0;
         this.fps = fps;
@@ -158,8 +159,19 @@ Game.prototype = {
         this.frame = new Rect(0, 0, canvas.width, canvas.height);
         $(canvas).mousedown(this.mousedown).mousemove(this.mousemove).mouseup(this.mouseup);
         this.state = "running";
+	this.spawn();
     },
 
+   spawn : function() {
+       var ni = new NewsItem({ game : this });
+       if(!ni.placable()) {
+           this.over();
+       } else {
+	   this.add(ni);
+	   setTimeout(this.spawn, this.SPAWN_TIME);
+       }
+   },
+   
     at : function(index) {
 	return this.game_items.at(index);
     },
@@ -290,6 +302,7 @@ Game.prototype = {
             var top = this.frame.height / 2 - 40 / 2;
             ctx.fillText(text, left, top);
             ctx.restore();
+	    this.running = false;
             break;
         }
 
@@ -351,15 +364,5 @@ $(function() {
       var canvas = $("#arena").get(0);
       document.game = new Game(canvas, 30.0);
       document.game.debug = true;
-      function spawn() {
-          var ni = new NewsItem({ game : document.game });
-          if(!ni.placable()) {
-              document.game.over();
-              return;
-          }
-          document.game.add(ni);
-          setTimeout(spawn, 1000);
-      }
-      setTimeout(spawn, 1000);
       document.game.start();
 });
