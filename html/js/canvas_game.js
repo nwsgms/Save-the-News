@@ -150,11 +150,12 @@ function DropZone() {
 }
 
 DropZone.prototype = {
-    __init__ : function(style, left, top, width, height) {
+    __init__ : function(game, style, left, top, width, height) {
 	_.bindAll(this, "render", "hit");
 	this.frame = new Rect(left, top, width, height);
 	this.style = style;
 	this.count = 0;
+	this.game = game;
     },
 
     render : function(game, elapsed) {
@@ -179,9 +180,40 @@ DropZone.prototype = {
 	if(this.frame.overlaps(news_item.frame)) {
 	    this.count += 1;
 	    news_item.set({"state" : "consumed"});
+	    return true;
 	}
+	return false;
     }
 };
+
+function Schedule() {
+    this.__init__.apply(this, arguments);
+}
+
+Schedule.prototype = _.extend(
+    {},
+    DropZone.prototype,
+    {
+	__init__ : function(capacity, game, style, left, top, width, height) {
+	    DropZone.prototype.__init__.call(this, 
+					      game, 
+					      style,
+					      left,
+					      top,
+					      width,
+					      height);
+	    this.capacity = capacity;
+	},
+
+	hit : function(news_item) {
+	    if(DropZone.prototype.hit.call(this, news_item)) {
+		if(this.count >= this.capacity) {
+		    this.game.over();
+		}
+	    }
+	}
+    }
+);
 
 var GameItems = Backbone.Collection.extend(
     {
@@ -209,8 +241,8 @@ Game.prototype = {
 		 "hit_dropzone");
         this.game_items = new GameItems();
 	this.floaters = new GameItems();
-	var plan = new DropZone("#0f0", 0, 0, canvas.width / 4, canvas.height);
-	var bin = new DropZone("#f00", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
+	var plan = new Schedule(5, this, "#0f0", 0, 0, canvas.width / 4, canvas.height);
+	var bin = new DropZone(this, "#f00", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
 	this.dropzones = [plan, bin];
 	this.length = 0;
         this.fps = fps;
