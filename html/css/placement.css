@@ -1,0 +1,15 @@
+div.slider 
+{ 
+  width: 300px;
+  margin-bottom:20px;
+}
+
+#canvas 
+{ 
+  margin-top: 20px;
+}
+
+#texts li.selected
+{  
+  background-color: green;
+}
