@@ -1,107 +1,365 @@
 
 
-NewsItem = Backbone.View.extend(
-    {
-	tagName: "div",
-	className: "newsitem",
-
-
-	initialize: function() {
-	    _.bindAll(this, "render", "dragstart", "dragstop", "collided");
-	    this.velocity = .0;
-	    this.state = "falling";
-	    this.max_top = this.options.max_top;
-	    this.arena = this.options.arena;
-	    var arena = this.arena;
-	    $(this.el).text(this.options.message);
-
-	    var item = $(this.el);
-	    arena.append(item);
-	    var w = item.outerWidth();
-	    var h = item.outerHeight();
-	    var aw = arena.innerWidth();
-	    var ah = arena.innerHeight();
-	    var left = aw / 2 - w / 2;
-	    this.top = 0;
-	    item.css("top", this.top);
-	    item.css("left", left);
-	    item.draggable({
-			       start: this.dragstart,
-			       stop : this.dragstop
-			   });
-	},
-
-	collided : function() {
-	    var item = $(this.el);
-	    return item.offset().top + item.outerHeight() >= this.max_top;
-	},
-
-	render: function(elapsed) {
-	    var item = $(this.el);
-	    if(this.state == "resting") {
-		return;
-	    }
-	    if(this.collided()) {
-		if(this.velocity >= 0) {
-		    this.velocity = -this.velocity * NewsItem.DAMPING;
-		}
-		if(Math.abs(this.velocity) < (NewsItem.GRAVITY / NewsItem.RESTING_THRESHOLD_DIVISOR)) {
-		    item.css("top", this.max_top - item.outerHeight() - this.arena.position().top);
-		    this.state = "resting";
-		}
-	    }
-	    if(this.state == "falling") {
-		this.velocity += NewsItem.GRAVITY * elapsed;
-		var p = item.position();
-		item.css("top", p.top + elapsed * this.velocity);
-	    } else {
-		this.velocity = .0;
-	    }
-	},
-	
-	dragstart : function() {
-	    this.state = "dragging";
-	},
-
-	dragstop : function() {
-	    console.log("dragstop");
-	    this.state = "falling";
-	}
-    },
-    {
-	GRAVITY : 200.0,
-	DAMPING : .5,
-	RESTING_THRESHOLD_DIVISOR : 25.0
-    }
-
-);
-
-FRAMERATE = 30.0;
-
-var newsitems = [];
-
-var now = new Date().getTime();
-
-function gameloop() {
-    setTimeout(gameloop, 1.0 / FRAMERATE * 1000);
-    var t = new Date().getTime();
-    var elapsed = (t - this.now) / 1000.0;
-    now = t;
-    if(elapsed == 0)
-	return;
-    $.each(newsitems, function(_, item) {
-	       item.render(elapsed);
-	   }
-	  );
+function DropZone() {
+    this.__init__.apply(this, arguments);
 }
 
+DropZone.prototype = {
+    __init__ : function(game, style, left, top, width, height) {
+        _.bindAll(this, "render", "hit");
+        this.frame = new Rect(left, top, width, height);
+        this.style = style;
+        this.count = 0;
+        this.game = game;
+    },
+
+    render : function(game, elapsed) {
+        var ctx = game.ctx;
+        ctx.save();
+        ctx.fillStyle = this.style;
+        ctx.fillRect(this.frame.left, 
+                     this.frame.top, 
+                     this.frame.width, 
+                     this.frame.height);
+        ctx.fillStyle = "#000";
+        ctx.font = "40pt Arial";
+        var text = "" + this.count;
+        var tm = ctx.measureText(text);
+        var left = this.frame.left + this.frame.width / 2 - tm.width / 2;
+        var top = this.frame.top + this.frame.height / 2 - 40 / 2;
+        ctx.fillText(text, left, top);
+        ctx.restore();
+    }, 
+
+    hit : function(news_item) {
+        if(this.frame.overlaps(news_item.frame)) {
+            this.count += 1;
+            news_item.set({"state" : "consumed"});
+            return true;
+        }
+        return false;
+    }
+};
+
+function Schedule() {
+    this.__init__.apply(this, arguments);
+}
+
+Schedule.prototype = _.extend(
+    {},
+    DropZone.prototype,
+    {
+        __init__ : function(capacity, game, style, left, top, width, height) {
+            DropZone.prototype.__init__.call(this, 
+                                              game, 
+                                              style,
+                                              left,
+                                              top,
+                                              width,
+                                              height);
+            this.capacity = capacity;
+	    this.items = [];
+        },
+
+        hit : function(news_item) {
+            if(DropZone.prototype.hit.call(this, news_item)) {
+		this.items.push(news_item);
+                if(this.count >= this.capacity) {
+                    this.game.arrange_schedule();
+                }
+            }
+        }
+    }
+);
+
+var GameItems = Backbone.Collection.extend(
+    {
+        model : NewsItem,
+        comparator : function(gi) {
+            return gi.frame.top;
+        }
+    }
+);
+
+function Game() {
+    this.__init__.apply(this, arguments);
+}
+
+Game.prototype = {
+    GRAVITY : 4.0,
+    BACKGROUND_COLOR : "#ffa",
+    FLOAT_TIME : .8,
+    SPAWN_TIME : 2000,
+
+    __init__ : function(canvas, messages, fps) {
+        _.bindAll(this, "run", "start", "render_debug_info", "add",
+                 "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
+                 "bottom_collision_frame", "filter", "at", "spawn", "remove",
+                 "hit_dropzone");
+        this.messages = render_messages(messages, 240);
+        this.game_items = new GameItems();
+        this.floaters = new GameItems();
+        var plan = new Schedule(3, this, "#0f0", 0, 0, canvas.width / 4, canvas.height);
+        var bin = new DropZone(this, "#f00", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
+        this.dropzones = [plan, bin];
+	this.td = new TimerDisplay(60.0, 19, 59, 0);
+        this.length = 0;
+        this.fps = fps;
+        this.running = false;
+        this.debug = false;
+        this.canvas = canvas;
+        this.max_fps = 0;
+        this.min_fps = 1000;
+        this.mousepos = null;
+        this.ctx = this.canvas.getContext("2d");
+        this.frame = new Rect(0, 0, canvas.width, canvas.height);
+        $(canvas).mousedown(this.mousedown).mousemove(this.mousemove).mouseup(this.mouseup);
+        this.state = "running";
+        this.spawn();
+    },
+
+    hit_dropzone : function(news_item) {
+        _.forEach(this.dropzones, 
+                  function(dz) {
+                      dz.hit(news_item);
+                  }
+                 );
+    },
+
+   spawn : function() {
+       if(_.isEqual(this.messages, {})) {
+           return;
+       }
+       var img = null;
+       for(var key in this.messages) {
+           img = this.messages[key];
+           delete this.messages[key];
+           break;
+       }
+       var ni = new NewsItem({ game : this ,
+                               image : img });
+       if(!ni.placable()) {
+           this.over();
+       } else {
+           this.add(ni);
+           setTimeout(this.spawn, this.SPAWN_TIME);
+       }
+   },
+   
+    at : function(index) {
+        return this.game_items.at(index);
+    },
+
+    bottom_collision_frame : function() {
+        var cl = this.frame.bottom + 1;
+        this.floaters.forEach(
+            function(floater) {
+                cl += floater.float.offset;             
+            }
+        );
+        return new Rect(this.frame.width / 2, cl, 1, 1);
+    },
+
+    over : function() {
+        this.state = "over";
+        this.game_items.forEach(function(item) 
+                                { 
+                                    item.set({"state" : "frozen"});
+                                });
+    },
+
+    mousedown : function(e) {
+        if(this.state == "over")
+            return;
+        var c = $(this.canvas);
+        var x = Math.floor((e.pageX - c.offset().left));
+        var y = Math.floor((e.pageY - c.offset().top));
+        this.mousepos = {
+            x : x,
+            y : y
+        };
+        this.forEach(
+            _.bind(
+                function(item) {
+                    if(item.frame.contains(x, y)) {
+                        item.drag_offset = {
+                            x : item.frame.x - x,
+                            y : item.frame.y - y
+                            
+                        };
+                        if(item.get("state") == "resting") {
+                            var unrest = true;
+                            this.forEach(function(resting_item) {
+                                             if(item == resting_item) {
+                                                 unrest = false;
+                                                 return;
+                                             }
+                                             if(unrest) {
+                                                 if(resting_item.get("state") == "resting") {
+                                                     resting_item.set({"state" : "falling"});
+                                                     
+                                                 }
+                                             }
+                                         }
+                                        );
+                        }
+                        item.set({"state" : "dragging"});
+                        console.log(item.frame);
+                    } else {
+                        item.clicked = false;
+                    }
+                    
+            }, this)
+        );
+    },
+
+    mousemove : function(e) {
+        if(this.state == "over")
+            return;
+        var c = $(this.canvas);
+        var x = Math.floor((e.pageX - c.offset().left));
+        var y = Math.floor((e.pageY - c.offset().top));
+        
+        this.mousepos = {
+            x : x,
+            y : y
+        };
+    },
+
+    mouseup : function(e) {
+        if(this.state == "over")
+            return;
+        this.forEach(function(item)
+                     {
+                         if(item.get("state") == "dragging") {
+                             item.floating();
+                         }
+                     }
+                    );
+    },
+
+
+    start : function() {
+        this.running = true;
+        this.now = new Date().getTime();
+        setTimeout(this.run, 1000.0 / this.fps);
+    },
+
+    run : function() {
+        if(!this.running)
+            return;
+        var t = new Date().getTime();
+        var elapsed = (t - this.now) / 1000.0;
+        if (elapsed == 0) {
+            return;
+        }
+        this.now = t;
+        // reschedule
+        this.start();
+        var ctx = this.ctx;
+        ctx.save();
+        ctx.fillStyle = this.BACKGROUND_COLOR;
+        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+
+        this.pre_rendering();
+        _.forEach(this.dropzones, 
+                  _.bind(function(dz) {
+                             dz.render(this, elapsed);
+                         }, this)
+                 );
+	this.td.render(this, elapsed);
+        this.game_items.forEach(_.bind(
+                                    function(item) 
+                                    { 
+                                        item.render(this, elapsed);
+                                    }, this));
+
+        switch(this.state) {
+        case "over":
+            ctx.save();
+            ctx.strokeStyle = "#f00";
+            ctx.fillStyle = "#f00";
+            ctx.font = "40pt Arial";
+            var text = "GAME OVER";
+            var tm = ctx.measureText(text);
+            var left = this.frame.width / 2 - tm.width / 2;
+            var top = this.frame.height / 2 - 40 / 2;
+            ctx.fillText(text, left, top);
+            ctx.restore();
+            this.running = false;
+            break;
+        }
+
+        if(this.debug) {
+            this.render_debug_info(ctx, elapsed);
+        }
+        ctx.restore();
+    },
+
+    pre_rendering : function() {
+        this.game_items.sort();
+        var resting_items = this.topmost_line = this.game_items.filter(
+                function(gi) {
+                    return gi.get("state") == "resting" ||
+                        gi.get("state") == "falling_to_rest";
+                }
+            );
+        if(resting_items.length == 0) {
+            this.topmost_line = this.frame.bottom;
+        } else {
+            this.topmost_line = resting_items[0].frame.top;
+        }
+    },
+
+    forEach : function(iterator) {
+        return this.game_items.forEach(iterator);
+    },
+
+    filter : function(predicate) {
+       return this.game_items.filter(predicate);
+    }, 
+
+    render_debug_info : function(ctx, elapsed) {
+        var fps = Math.ceil(1.0 / elapsed);
+        ctx.fillStyle = "rgba(0, 0, 0, .5)";
+        ctx.fillRect(0, 0, 200, 80);
+        ctx.strokeStyle = "#fff";
+        if(fps > this.max_fps) {
+            this.max_fps = fps;
+        }
+        if(fps < this.min_fps) {
+            this.min_fps = fps;
+        }
+        var left = 10;
+        var top = 10;
+        ctx.strokeText("FPS: " + fps + " Max: " + this.max_fps + " Min: " + this.min_fps, left, top);
+        top += 15;
+        ctx.strokeText("Objects: " + this.game_items.length, left, top);
+    },
+
+    add : function(game_item) {
+        this.game_items.add(game_item);
+        this.length += 1;
+    },
+
+    remove :  function(news_item) {
+        this.game_items.remove(news_item);
+        this.length -= 1;
+    }
+
+};
+
+MESSAGES = [
+    "EU for|dert „un|ver|züg|li|chen Rück|tritt“ Gad|dafis",
+    "Erste Test|be|richte zum iPad 2 lo|ben die ho|he Ge|schwin|dig|keit",
+    "Posch muss drau|ßen blei|ben",
+    "NRW-Am|bi|tio|nen: Rött|gen gibt sich trotz E10-De|sas|ter selbst|be|wusst"
+];
+
+
 $(function() {
-      var arena = $("#arena");
-      ni = new NewsItem({
-			    arena : arena,
-			    message : "Bestes Spiel der Welt veröffentlicht",
-			    max_top : arena.position().top + arena.innerHeight()
-			});
-      newsitems.push(ni);
-      gameloop();
-  });
+      var canvas = $("#arena").get(0);
+      document.game = new Game(canvas, MESSAGES, 30.0);
+      document.game.debug = true;
+      document.game.start();
+});

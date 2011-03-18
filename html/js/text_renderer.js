@@ -145,6 +145,10 @@ function render_messages(messages, max_width, options) {
     var res = {};
     _.forEach(messages,
               function(text) {
+		  ctx.globalCompositeOperation = "copy";
+		  ctx.fillStyle = 'rgba(0, 0, 0, 255)';
+		  ctx.fillRect(0, 0, max_width, max_width);
+		  ctx.globalCompositeOperation = "source-over";
                   res[text] = render_text(ctx, max_width, max_width, text, o);
               }
              );
