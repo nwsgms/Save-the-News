@@ -5,22 +5,22 @@ var NewsItem = Backbone.Model.extend(
             _.bindAll(this, "render", "draw", "collides",
                       "placable", "statechanged", "floating");
             var game = this.get("game");
-            var width = 50 + Math.floor(Math.random() * 100);
-            var height = 30 + Math.floor(Math.random() * 30);
+            var image = this.get("image");
+            var width = image.width;
+            var height = image.height;
             var left = game.canvas.width / 2 - width / 2;
             var top = 0;
             this.drag_offset = null;
             this.velocity = 0.0;
             this.frame = new Rect(left, top, width, height);
-            this.color = "#99f";
             this.clicked = false;
             this.set({ state : "falling"});
             this.bind("change:state", this.statechanged);
         },
 
-	floating : function() {
-	    this.set({"state" : "floating"});
-	},
+        floating : function() {
+            this.set({"state" : "floating"});
+        },
 
         statechanged : function() {
             var game = this.get("game");
@@ -29,43 +29,43 @@ var NewsItem = Backbone.Model.extend(
                 // we fly back to bottom position
                 var left = game.canvas.width / 2 - this.frame.width / 2;
                 var top = game.canvas.height - this.frame.height;
-		// if we have other floaters, determine the highest 
-		// destination position of one of them, and that's
-		// ours then 
-		if(game.floaters.length) {
-		    game.floaters.forEach(
-			function(floater) {
-			    top = Math.min(floater.float.top - this.frame.height, top); 
-			}
-		    );
-		}
+                // if we have other floaters, determine the highest 
+                // destination position of one of them, and that's
+                // ours then 
+                if(game.floaters.length) {
+                    game.floaters.forEach(
+                        function(floater) {
+                            top = Math.min(floater.float.top - this.frame.height, top); 
+                        }
+                    );
+                }
                 var dx = (left - this.frame.left) / game.FLOAT_TIME;
                 var dy = (top - this.frame.top) / game.FLOAT_TIME;
-		var do_ = -this.frame.height / game.FLOAT_TIME;
+                var do_ = -this.frame.height / game.FLOAT_TIME;
                 this.float = {
                     left : left,
                     top : top,
                     dx : dx,
                     dy : dy,
-		    offset : 0.0,
-		    do_ : do_,
-		    time : game.FLOAT_TIME
+                    offset : 0.0,
+                    do_ : do_,
+                    time : game.FLOAT_TIME
                 };
-		// finally, add ourselves to the floaters
-		this.get("game").floaters.add(this);
+                // finally, add ourselves to the floaters
+                this.get("game").floaters.add(this);
                 break;
-	    case "consumed":
-		this.get("game").remove(this);
+            case "consumed":
+                this.get("game").remove(this);
             }
         },
 
         placable : function() {
-	    var game = this.get("game");
-	    if(game.length > 0) {
-		var gap = game.at(0).frame.top;
-		return gap >= this.frame.height;
-	    }
-	    return true;
+            var game = this.get("game");
+            if(game.length > 0) {
+                var gap = game.at(0).frame.top;
+                return gap >= this.frame.height;
+            }
+            return true;
         },
 
         render : function(game, elapsed) {
@@ -76,22 +76,22 @@ var NewsItem = Backbone.Model.extend(
                 var collision_line = this.collides(game);
                 if(collision_line !== null) {
                     this.frame.move(this.frame.left, collision_line);
-		    this.velocity = .0;
+                    this.velocity = .0;
                 }
                 break;
             case "dragging":
                 this.frame.move(game.mousepos);
                 this.frame.translate(this.drag_offset);
-		game.hit_dropzone(this);
+                game.hit_dropzone(this);
                 break;
             case "floating":
                 this.frame.translate(this.float.dx * elapsed, 
                                      this.float.dy * elapsed);
-		this.float.offset += elapsed * this.float.do_;
-		this.float.time -= elapsed;
-		if(this.float.time <= .0) {
+                this.float.offset += elapsed * this.float.do_;
+                this.float.time -= elapsed;
+                if(this.float.time <= .0) {
                     this.frame.move(this.float.left, this.float.top);
-		    game.floaters.remove(this);
+                    game.floaters.remove(this);
                     this.set({"state" : "falling"});
                 }
             }
@@ -101,7 +101,7 @@ var NewsItem = Backbone.Model.extend(
         collides : function(game) {
             // if we are the only one
             // in there, the collision happens with the bottom
-	    // potentially this means floating up!
+            // potentially this means floating up!
             var candidate_frame = null;
             candidate_frame = game.bottom_collision_frame();
             // the item-collection guarantees that all the 
@@ -110,13 +110,13 @@ var NewsItem = Backbone.Model.extend(
             var me = this;
             var found = false;
             var items_below_me = game.filter(
-		function(other)
+                function(other)
                 {
                     if(other == me) {
                         found = true;
                         return false;
                     }
-		    return found && other.get("state") == "falling";
+                    return found && other.get("state") == "falling";
                 }
             );
             if(items_below_me.length) {
@@ -130,15 +130,17 @@ var NewsItem = Backbone.Model.extend(
 
         draw : function(game) {
             var ctx = game.ctx;
+            var image = this.get("image");
             ctx.save();
-            if(!this.clicked)
-                ctx.fillStyle = this.color;
-            else
-                ctx.fillStyle = "#f00";
-            ctx.fillRect(this.frame.left, 
-                         this.frame.top, 
-                         this.frame.width, 
-                         this.frame.height);
+            // if(!this.clicked)
+            //     ctx.fillStyle = this.color;
+            // else
+            //     ctx.fillStyle = "#f00";
+            // ctx.fillRect(this.frame.left, 
+            //              this.frame.top, 
+            //              this.frame.width, 
+            //              this.frame.height);
+            ctx.putImageData(image, this.frame.left, this.frame.top);
             ctx.restore();
         }
     }
@@ -151,11 +153,11 @@ function DropZone() {
 
 DropZone.prototype = {
     __init__ : function(game, style, left, top, width, height) {
-	_.bindAll(this, "render", "hit");
-	this.frame = new Rect(left, top, width, height);
-	this.style = style;
-	this.count = 0;
-	this.game = game;
+        _.bindAll(this, "render", "hit");
+        this.frame = new Rect(left, top, width, height);
+        this.style = style;
+        this.count = 0;
+        this.game = game;
     },
 
     render : function(game, elapsed) {
@@ -166,7 +168,7 @@ DropZone.prototype = {
                      this.frame.top, 
                      this.frame.width, 
                      this.frame.height);
-	ctx.fillStyle = "#000";
+        ctx.fillStyle = "#000";
         ctx.font = "40pt Arial";
         var text = "" + this.count;
         var tm = ctx.measureText(text);
@@ -177,12 +179,12 @@ DropZone.prototype = {
     }, 
 
     hit : function(news_item) {
-	if(this.frame.overlaps(news_item.frame)) {
-	    this.count += 1;
-	    news_item.set({"state" : "consumed"});
-	    return true;
-	}
-	return false;
+        if(this.frame.overlaps(news_item.frame)) {
+            this.count += 1;
+            news_item.set({"state" : "consumed"});
+            return true;
+        }
+        return false;
     }
 };
 
@@ -194,24 +196,24 @@ Schedule.prototype = _.extend(
     {},
     DropZone.prototype,
     {
-	__init__ : function(capacity, game, style, left, top, width, height) {
-	    DropZone.prototype.__init__.call(this, 
-					      game, 
-					      style,
-					      left,
-					      top,
-					      width,
-					      height);
-	    this.capacity = capacity;
-	},
+        __init__ : function(capacity, game, style, left, top, width, height) {
+            DropZone.prototype.__init__.call(this, 
+                                              game, 
+                                              style,
+                                              left,
+                                              top,
+                                              width,
+                                              height);
+            this.capacity = capacity;
+        },
 
-	hit : function(news_item) {
-	    if(DropZone.prototype.hit.call(this, news_item)) {
-		if(this.count >= this.capacity) {
-		    this.game.over();
-		}
-	    }
-	}
+        hit : function(news_item) {
+            if(DropZone.prototype.hit.call(this, news_item)) {
+                if(this.count >= this.capacity) {
+                    this.game.over();
+                }
+            }
+        }
     }
 );
 
@@ -229,22 +231,23 @@ function Game() {
 }
 
 Game.prototype = {
-    GRAVITY : 2.0,
+    GRAVITY : 4.0,
     BACKGROUND_COLOR : "#ffa",
     FLOAT_TIME : .8,
     SPAWN_TIME : 2000,
 
-    __init__ : function(canvas, fps) {
+    __init__ : function(canvas, messages, fps) {
         _.bindAll(this, "run", "start", "render_debug_info", "add",
                  "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
                  "bottom_collision_frame", "filter", "at", "spawn", "remove",
-		 "hit_dropzone");
+                 "hit_dropzone");
+        this.messages = render_messages(messages, 240);
         this.game_items = new GameItems();
-	this.floaters = new GameItems();
-	var plan = new Schedule(5, this, "#0f0", 0, 0, canvas.width / 4, canvas.height);
-	var bin = new DropZone(this, "#f00", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
-	this.dropzones = [plan, bin];
-	this.length = 0;
+        this.floaters = new GameItems();
+        var plan = new Schedule(5, this, "#0f0", 0, 0, canvas.width / 4, canvas.height);
+        var bin = new DropZone(this, "#f00", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
+        this.dropzones = [plan, bin];
+        this.length = 0;
         this.fps = fps;
         this.running = false;
         this.debug = false;
@@ -256,38 +259,48 @@ Game.prototype = {
         this.frame = new Rect(0, 0, canvas.width, canvas.height);
         $(canvas).mousedown(this.mousedown).mousemove(this.mousemove).mouseup(this.mouseup);
         this.state = "running";
-	this.spawn();
+        this.spawn();
     },
 
     hit_dropzone : function(news_item) {
-	_.forEach(this.dropzones, 
-		  function(dz) {
-		      dz.hit(news_item);
-		  }
-		 );
+        _.forEach(this.dropzones, 
+                  function(dz) {
+                      dz.hit(news_item);
+                  }
+                 );
     },
 
    spawn : function() {
-       var ni = new NewsItem({ game : this });
+       if(_.isEqual(this.messages, {})) {
+           return;
+       }
+       var img = null;
+       for(var key in this.messages) {
+           img = this.messages[key];
+           delete this.messages[key];
+           break;
+       }
+       var ni = new NewsItem({ game : this ,
+                               image : img });
        if(!ni.placable()) {
            this.over();
        } else {
-	   this.add(ni);
-	   setTimeout(this.spawn, this.SPAWN_TIME);
+           this.add(ni);
+           setTimeout(this.spawn, this.SPAWN_TIME);
        }
    },
    
     at : function(index) {
-	return this.game_items.at(index);
+        return this.game_items.at(index);
     },
 
     bottom_collision_frame : function() {
-	var cl = this.frame.bottom + 1;
-	this.floaters.forEach(
-	    function(floater) {
-		cl += floater.float.offset;		
-	    }
-	);
+        var cl = this.frame.bottom + 1;
+        this.floaters.forEach(
+            function(floater) {
+                cl += floater.float.offset;             
+            }
+        );
         return new Rect(this.frame.width / 2, cl, 1, 1);
     },
 
@@ -393,11 +406,11 @@ Game.prototype = {
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
         this.pre_rendering();
-	_.forEach(this.dropzones, 
-		  _.bind(function(dz) {
-			     dz.render(this, elapsed);
-			 }, this)
-		 );
+        _.forEach(this.dropzones, 
+                  _.bind(function(dz) {
+                             dz.render(this, elapsed);
+                         }, this)
+                 );
         this.game_items.forEach(_.bind(
                                     function(item) 
                                     { 
@@ -416,7 +429,7 @@ Game.prototype = {
             var top = this.frame.height / 2 - 40 / 2;
             ctx.fillText(text, left, top);
             ctx.restore();
-	    this.running = false;
+            this.running = false;
             break;
         }
 
@@ -469,19 +482,27 @@ Game.prototype = {
 
     add : function(game_item) {
         this.game_items.add(game_item);
-	this.length += 1;
+        this.length += 1;
     },
 
     remove :  function(news_item) {
-	this.game_items.remove(news_item);
-	this.length -= 1;
+        this.game_items.remove(news_item);
+        this.length -= 1;
     }
 
 };
 
+MESSAGES = [
+    "EU for|dert „un|ver|züg|li|chen Rück|tritt“ Gad|dafis",
+    "Erste Test|be|richte zum iPad 2 lo|ben die ho|he Ge|schwin|dig|keit",
+    "Posch muss drau|ßen blei|ben",
+    "NRW-Am|bi|tio|nen: Rött|gen gibt sich trotz E10-De|sas|ter selbst|be|wusst"
+];
+
+
 $(function() {
       var canvas = $("#arena").get(0);
-      document.game = new Game(canvas, 30.0);
+      document.game = new Game(canvas, MESSAGES, 30.0);
       document.game.debug = true;
       document.game.start();
 });
