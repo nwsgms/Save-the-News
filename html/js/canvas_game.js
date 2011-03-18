@@ -247,6 +247,7 @@ Game.prototype = {
         var plan = new Schedule(5, this, "#0f0", 0, 0, canvas.width / 4, canvas.height);
         var bin = new DropZone(this, "#f00", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
         this.dropzones = [plan, bin];
+	this.td = new TimerDisplay(60.0, 19, 59, 0);
         this.length = 0;
         this.fps = fps;
         this.running = false;
@@ -411,6 +412,7 @@ Game.prototype = {
                              dz.render(this, elapsed);
                          }, this)
                  );
+	this.td.render(this, elapsed);
         this.game_items.forEach(_.bind(
                                     function(item) 
                                     { 
