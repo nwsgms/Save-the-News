@@ -145,3 +145,13 @@ var NewsItem = Backbone.Model.extend(
         }
     }
 );
+
+
+var GameItems = Backbone.Collection.extend(
+    {
+        model : NewsItem,
+        comparator : function(gi) {
+            return gi.frame.top;
+        }
+    }
+);

@@ -69,6 +69,8 @@ Rect.prototype = {
         this.topright = {x : this.right, y : this.top};
         this.bottomleft = {x : this.left, y : this.bottom};
         this.bottomright = {x : this.right, y : this.bottom};
+	this.center_x = (this.left + this.right) / 2;
+	this.center_y = (this.top + this.bottom) / 2;
     },
 
     contains : function(x, y) {

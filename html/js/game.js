@@ -72,15 +72,6 @@ Schedule.prototype = _.extend(
     }
 );
 
-var GameItems = Backbone.Collection.extend(
-    {
-        model : NewsItem,
-        comparator : function(gi) {
-            return gi.frame.top;
-        }
-    }
-);
-
 function Game() {
     this.__init__.apply(this, arguments);
 }
