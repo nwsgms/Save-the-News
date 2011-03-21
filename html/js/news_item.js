@@ -95,7 +95,7 @@ var NewsItem = Backbone.Model.extend(
                     this.set({"state" : "falling"});
                 }
             }
-            this.draw(game);
+            return this.draw(game);
         },
 
         collides : function(game) {
@@ -129,19 +129,16 @@ var NewsItem = Backbone.Model.extend(
         },
 
         draw : function(game) {
-            var ctx = game.ctx;
-            var image = this.get("image");
-            ctx.save();
-            // if(!this.clicked)
-            //     ctx.fillStyle = this.color;
-            // else
-            //     ctx.fillStyle = "#f00";
-            // ctx.fillRect(this.frame.left, 
-            //              this.frame.top, 
-            //              this.frame.width, 
-            //              this.frame.height);
-            ctx.putImageData(image, this.frame.left, this.frame.top);
-            ctx.restore();
+	    function drawer() {
+		var ctx = game.ctx;
+		var image = this.get("image");
+		ctx.save();
+		ctx.putImageData(image, this.frame.left, this.frame.top);
+		ctx.restore();
+	    }
+	    drawer = _.bind(drawer, this);
+	    drawer.zindex = 0;
+	    return drawer;
         }
     }
 );

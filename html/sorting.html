@@ -18,13 +18,31 @@
     <script type="text/javascript" src="js/text_renderer.js"></script>
     <script type="text/javascript" src="js/time_display.js"></script>
     <script type="text/javascript" src="js/stage_item.js"></script>
+    <script type="text/javascript" src="js/sorting.js"></script>
     <link rel="stylesheet" href="css/test.css" type="text/css" media="all" ></script>
     <title>Save the News</title>
   </head>
   <body>
     <h1>Save the news</h1>
     <canvas id="arena" width="600" height="600"></canvas>
-    <script type="text/javascript" src="js/sorting.js"></script>
+
+
+<script type="text/javascript">
+$(function() {
+      var canvas = $("#arena").get(0);
+      var messages = render_messages(MESSAGES, 240);
+      var items = [];
+      game = new SortingGame(canvas, 30.0);
+      for(var key in messages) {
+	  var image = messages[key];
+	  var ni = new StageItem({ game : game ,
+                               image : image });
+	  game.add(ni);
+      }
+      game.debug = true;
+      game.start();
+});
+</script>
   </body>
 </html>
       

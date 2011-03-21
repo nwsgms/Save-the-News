@@ -76,21 +76,29 @@ var StageItem = Backbone.Model.extend(
 		}
                 break;
             }
-            this.draw(game);
+            return this.draw(game);
         },
 
         draw : function(game) {
-            var ctx = game.ctx;
-            var image = this.get("image");
-            ctx.save();
-	    var top = this.frame.top;
-	    if(top <= 0) {
-		top = 0
-	    } else if(top + this.frame.height > game.frame.bottom) {
-		top = game.frame.bottom - this.frame.height;
+	    function drawer() {		
+		var ctx = game.ctx;
+		var image = this.get("image");
+		ctx.save();
+		var top = this.frame.top;
+		if(top <= 0) {
+		    top = 0
+		} else if(top + this.frame.height > game.frame.bottom) {
+		    top = game.frame.bottom - this.frame.height;
+		}
+		ctx.putImageData(image, this.frame.left, top);		
+		ctx.restore();
+	    };
+	    drawer = _.bind(drawer, this);
+	    drawer.zindex = 0;
+	    if(this.get("state") == "dragging") {
+		drawer.zindex = 1;
 	    }
-	    ctx.putImageData(image, this.frame.left, top);		
-            ctx.restore();
+	    return drawer;
         }
     }
 );
@@ -107,23 +115,26 @@ var StageItems = Backbone.Collection.extend(
 );
 
 
-function Game() {
+function SortingGame() {
     this.__init__.apply(this, arguments);
 }
 
-Game.prototype = {
-    GRAVITY : 4.0,
-    BACKGROUND_COLOR : "#ffa",
-    FLOAT_TIME : .8,
-
-    __init__ : function(canvas, fps) {
+SortingGame.prototype = _.extend(
+    {},
+    GameBase.prototype,
+    {
+	GRAVITY : 4.0,
+	BACKGROUND_COLOR : "#faa",
+	FLOAT_TIME : .8,
+	
+    __init__ : function(canvas, fps, td) {
         _.bindAll(this, "run", "start", "render_debug_info", "add",
                  "mousedown", "mousemove", "mouseup", "over",
                  "bottom_collision_frame", "filter", "at", "spawn", "remove",
                  "hit_dropzone", "place_items");
         this.stage_items = new StageItems();
 	this.length = this.stage_items.length;
-	this.td = new TimerDisplay(60.0, 19, 59, 0);
+	this.td = td;
         this.fps = fps;
         this.running = false;
         this.canvas = canvas;
@@ -217,6 +228,8 @@ Game.prototype = {
         this.now = new Date().getTime();	
         setTimeout(this.run, 1000.0 / this.fps);
 	this.stage_items.sort();
+	// compute the total height of all
+	// items for the sorting
 	var height = 0;
 	this.forEach(
 	    function(item) {
@@ -238,37 +251,49 @@ Game.prototype = {
         this.now = t;
         // reschedule
         this.start();
+
+	// clear background
         var ctx = this.ctx;
         ctx.save();
         ctx.fillStyle = this.BACKGROUND_COLOR;
         ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-	this.td.render(this, elapsed);
+	var drawers = [];
+	drawers.push(this.td.render(this, elapsed));
 	this.place_items();
         this.stage_items.forEach(
 	    _.bind(
                 function(item) { 
-                    item.render(this, elapsed);
+                    drawers.push(item.render(this, elapsed));
                 }, this));
 
         switch(this.state) {
         case "over":
-            ctx.save();
-            ctx.strokeStyle = "#f00";
-            ctx.fillStyle = "#f00";
-            ctx.font = "40pt Arial";
-            var text = "GAME OVER";
-            var tm = ctx.measureText(text);
-            var left = this.frame.width / 2 - tm.width / 2;
-            var top = this.frame.height / 2 - 40 / 2;
-            ctx.fillText(text, left, top);
-            ctx.restore();
-            this.running = false;
+	    function go() {		
+		ctx.save();
+		ctx.strokeStyle = "#f00";
+		ctx.fillStyle = "#f00";
+		ctx.font = "40pt Arial";
+		var text = "GAME OVER";
+		var tm = ctx.measureText(text);
+		var left = this.frame.width / 2 - tm.width / 2;
+		var top = this.frame.height / 2 - 40 / 2;
+		ctx.fillText(text, left, top);
+		ctx.restore();
+		this.running = false;
+	    }
+	    go = _.bind(go, this);
+	    go.zindex = 100;
             break;
         }
 
         if(this.debug) {
-            this.render_debug_info(ctx, elapsed);
+            drawers.push(this.render_debug_info(ctx, elapsed));
         }
+	drawers = _.sortBy(drawers, 
+			   function(d) {
+			       return d.zindex;
+			   });
+	_.forEach(drawers, function(d) {d()});
         ctx.restore();
     },
 
@@ -278,26 +303,9 @@ Game.prototype = {
 
     forEach : function(iterator) {
         return this.stage_items.forEach(iterator);
-    },
-
-    render_debug_info : function(ctx, elapsed) {
-        var fps = Math.ceil(1.0 / elapsed);
-        ctx.fillStyle = "rgba(0, 0, 0, .5)";
-        ctx.fillRect(0, 0, 200, 80);
-        ctx.strokeStyle = "#fff";
-        if(fps > this.max_fps) {
-            this.max_fps = fps;
-        }
-        if(fps < this.min_fps) {
-            this.min_fps = fps;
-        }
-        var left = 10;
-        var top = 10;
-        ctx.strokeText("FPS: " + fps + " Max: " + this.max_fps + " Min: " + this.min_fps, left, top);
-        top += 15;
-        ctx.strokeText("Objects: " + this.stage_items.length, left, top);
     }
-};
+
+});
 
 
 
@@ -310,18 +318,3 @@ MESSAGES = [
 // ];
 
 
-
-$(function() {
-      var canvas = $("#arena").get(0);
-      var messages = render_messages(MESSAGES, 240);
-      var items = [];
-      game = new Game(canvas, 30.0);
-      for(var key in messages) {
-	  var image = messages[key];
-	  var ni = new StageItem({ game : game ,
-                               image : image });
-	  game.add(ni);
-      }
-      game.debug = true;
-      game.start();
-});
