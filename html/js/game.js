@@ -181,6 +181,16 @@ Game.prototype = _.extend(
                     item.set({"state" : "frozen"});
 		});
 	    this.running = false;
+	    setTimeout(
+		_.bind(
+		    function() {
+			window.game = new StartScreen(this.canvas, this.fps);
+			window.game.debug = this.debug;
+			window.game.start();
+		    },
+		    this),
+		5000
+	    );
 	},
 
 	mousedown : function(e) {
