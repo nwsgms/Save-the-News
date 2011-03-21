@@ -128,7 +128,8 @@ SortingGame.prototype = _.extend(
 	FLOAT_TIME : .8,
 	
     __init__ : function(canvas, fps, td) {
-        _.bindAll(this, "run", "start", "render_debug_info", "add",
+	GameBase.prototype.__init__.call(this, canvas, fps);
+        _.bindAll(this, "loop", "start", "render_debug_info", "add",
                  "mousedown", "mousemove", "mouseup", "over",
                  "bottom_collision_frame", "filter", "at", "spawn", "remove",
                  "hit_dropzone", "place_items");
@@ -224,9 +225,6 @@ SortingGame.prototype = _.extend(
 
 
     start : function() {
-        this.running = true;
-        this.now = new Date().getTime();	
-        setTimeout(this.run, 1000.0 / this.fps);
 	this.stage_items.sort();
 	// compute the total height of all
 	// items for the sorting
@@ -238,19 +236,10 @@ SortingGame.prototype = _.extend(
 	);
 	this.upper_bound = this.frame.top + (this.frame.height - height) / 2;
 	this.lower_bound = this.frame.bottom - this.upper_bound;
+	GameBase.prototype.start.call(this);
     },
 
-    run : function() {
-        if(!this.running)
-            return;
-        var t = new Date().getTime();
-        var elapsed = (t - this.now) / 1000.0;
-        if (elapsed == 0) {
-            return;
-        }
-        this.now = t;
-        // reschedule
-        this.start();
+    loop : function(elapsed) {
 
 	// clear background
         var ctx = this.ctx;

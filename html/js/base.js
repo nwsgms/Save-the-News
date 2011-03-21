@@ -7,7 +7,7 @@ function GameBase() {
 GameBase.prototype = {
     __init__ : function(canvas, fps) {
 	_.bindAll(this, "render_debug_info", "game_over_screen", "start",
-		  "run");
+		  "run", "schedule");
 	this.fps = fps;
 	this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
@@ -34,7 +34,7 @@ GameBase.prototype = {
 	this.now = t;
 	// reschedule ourselves for the game-loop
 	this.loop(elapsed);
-	this.start();
+	this.schedule();
     },
 
     render_debug_info : function(ctx, elapsed) {
@@ -81,6 +81,10 @@ GameBase.prototype = {
 
     start : function() {
         this.running = true;
+	this.schedule();
+    },
+
+    schedule : function() {
         setTimeout(this.run, 1000.0 / this.fps);
     }
 };
