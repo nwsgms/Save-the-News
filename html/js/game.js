@@ -90,12 +90,12 @@ Game.prototype = _.extend(
 	FLOAT_TIME : .8,
 	SPAWN_TIME : 2000,
 
-	__init__ : function(canvas, messages, fps) {
-	    GameBase.prototype.__init__.call(this);
-            _.bindAll(this, "run", "start", "render_debug_info", "add",
+	__init__ : function(messages, canvas, fps) {
+	    GameBase.prototype.__init__.call(this, canvas, fps);
+            _.bindAll(this, "render_debug_info", "add",
                       "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
                       "bottom_collision_frame", "filter", "at", "spawn", "remove",
-                      "hit_dropzone", "sorting_stage");
+                      "hit_dropzone", "sorting_stage", "loop");
             this.messages = render_messages(messages, 240);
             this.game_items = new GameItems();
             this.floaters = new GameItems();
@@ -104,16 +104,11 @@ Game.prototype = _.extend(
             this.dropzones = [plan, bin];
 	    this.td = new TimerDisplay(60.0, 19, 59, 0);
             this.length = 0;
-            this.fps = fps;
             this.running = false;
             this.debug = false;
             this.canvas = canvas;
-            this.max_fps = 0;
-            this.min_fps = 1000;
             this.mousepos = null;
-            this.ctx = this.canvas.getContext("2d");
             this.frame = new Rect(0, 0, canvas.width, canvas.height);
-            $(canvas).mousedown(this.mousedown).mousemove(this.mousemove).mouseup(this.mouseup);
             this.state = "running";
             this.spawn();
 	},
@@ -185,6 +180,7 @@ Game.prototype = _.extend(
 		{ 
                     item.set({"state" : "frozen"});
 		});
+	    this.running = false;
 	},
 
 	mousedown : function(e) {
@@ -258,27 +254,8 @@ Game.prototype = _.extend(
 	},
 
 
-	start : function() {
-            this.running = true;
-            this.now = new Date().getTime();
-            setTimeout(this.run, 1000.0 / this.fps);
-	},
-
-	run : function() {
-            if(!this.running)
-		return;
-            var t = new Date().getTime();
-            var elapsed = (t - this.now) / 1000.0;
-            if (elapsed == 0) {
-		return;
-            }
-            this.now = t;
-            // reschedule
-            this.start();
-
+	loop : function(elapsed) {
             this.pre_rendering();
-
-
 	    // clear background
             var ctx = this.ctx;
             ctx.save();
@@ -361,11 +338,3 @@ MESSAGES = [
     "Posch muss drau|ßen blei|ben",
     "NRW-Am|bi|tio|nen: Rött|gen gibt sich trotz E10-De|sas|ter selbst|be|wusst"
 ];
-
-
-$(function() {
-      var canvas = $("#arena").get(0);
-      window.game = new Game(canvas, MESSAGES, 30.0);
-      window.game.debug = true;
-      window.game.start();
-  });
