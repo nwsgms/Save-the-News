@@ -45,9 +45,13 @@ StartScreen.prototype = _.extend(
 
 	mousedown : function(e) {
 	    this.running = false;
-	    window.game = new Game(MESSAGES, this.canvas, this.fps);
-	    window.debug = this.debug;
-	    window.game.start();
+	    get_messages(
+		_.bind(
+		    function(messages) {
+			window.game = new Game(messages, this.canvas, this.fps);
+			window.debug = this.debug;
+			window.game.start();
+		    }, this));
 	}
     }
 );

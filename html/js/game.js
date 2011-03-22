@@ -96,7 +96,9 @@ Game.prototype = _.extend(
                       "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
                       "bottom_collision_frame", "filter", "at", "spawn", "remove",
                       "hit_dropzone", "sorting_stage", "loop");
-            this.messages = render_messages(messages, 240);
+	    this.messages = messages;
+	    // add the image
+            render_messages(messages, 240);
             this.game_items = new GameItems();
             this.floaters = new GameItems();
             var plan = new Schedule(3, this, "#0f0", 0, 0, canvas.width / 4, canvas.height);
@@ -114,15 +116,14 @@ Game.prototype = _.extend(
 	},
 	
 	sorting_stage : function(messages) {
-	    console.log("sorting_stage");
 	    this.running = false;
 	    window.game = new SortingGame(this.canvas, this.fps, this.td);
 	    _.forEach(
 		messages,
 		function(message) {
-		    var image = message.get("image");
+		    var message = message.get("message");
 		    var ni = new StageItem({ game : window.game ,
-					     image : image });
+					     message : message });
 
 		    window.game.add(ni);
 		}
@@ -132,25 +133,31 @@ Game.prototype = _.extend(
 	},
 	
 	hit_dropzone : function(news_item) {
+	    // Checks if a news-item is currently
+	    // over one of the dropzones.
+	    // Is called by the NewsItem when the
+	    // state is changed to floating
+	    var hit = false;
             _.forEach(this.dropzones, 
                       function(dz) {
-			  dz.hit(news_item);
+			  hit |= dz.hit(news_item);
                       }
                      );
+	    return hit;
 	},
 
 	spawn : function() {
-	    if(_.isEqual(this.messages, {})) {
+	    if(_.isEqual(this.messages, [])) {
 		return;
 	    }
 	    var img = null;
 	    for(var key in this.messages) {
-		img = this.messages[key];
+		message = this.messages[key];
 		delete this.messages[key];
 		break;
 	    }
 	    var ni = new NewsItem({ game : this ,
-				    image : img });
+				    message : message });
 	    if(!ni.placable()) {
 		this.over();
 	    } else {
@@ -181,6 +188,7 @@ Game.prototype = _.extend(
                     item.set({"state" : "frozen"});
 		});
 	    this.running = false;
+	    this.game_over_screen(this.ctx)();
 	    setTimeout(
 		_.bind(
 		    function() {
@@ -214,19 +222,20 @@ Game.prototype = _.extend(
                             };
                             if(item.get("state") == "resting") {
 				var unrest = true;
-				this.forEach(function(resting_item) {
-						 if(item == resting_item) {
-                                                     unrest = false;
-                                                     return;
-						 }
-						 if(unrest) {
-                                                     if(resting_item.get("state") == "resting") {
-							 resting_item.set({"state" : "falling"});
-							 
-                                                     }
-						 }
-                                             }
-                                            );
+				this.forEach(
+				    function(resting_item) {
+					if(item == resting_item) {
+                                            unrest = false;
+                                            return;
+					}
+					if(unrest) {
+                                            if(resting_item.get("state") == "resting") {
+						resting_item.set({"state" : "falling"});
+						
+                                            }
+					}
+                                    }
+                                );
                             }
                             item.set({"state" : "dragging"});
                             console.log(item.frame);
@@ -254,13 +263,14 @@ Game.prototype = _.extend(
 	mouseup : function(e) {
             if(this.state == "over")
 		return;
-            this.forEach(function(item)
-			 {
-                             if(item.get("state") == "dragging") {
-				 item.floating();
-                             }
-			 }
-			);
+            this.forEach(
+		function(item)
+		{
+                    if(item.get("state") == "dragging") {
+			item.floating();
+                    }
+		}
+	    );
 	},
 
 
@@ -341,10 +351,3 @@ Game.prototype = _.extend(
 	}
 
     });
-
-MESSAGES = [
-    "EU for|dert „un|ver|züg|li|chen Rück|tritt“ Gad|dafis",
-    "Erste Test|be|richte zum iPad 2 lo|ben die ho|he Ge|schwin|dig|keit",
-    "Posch muss drau|ßen blei|ben",
-    "NRW-Am|bi|tio|nen: Rött|gen gibt sich trotz E10-De|sas|ter selbst|be|wusst"
-];

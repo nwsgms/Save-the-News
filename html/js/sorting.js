@@ -6,7 +6,7 @@ var StageItem = Backbone.Model.extend(
                       "placable", "statechanged", "floating",
 		      "apply_force", "calc_force");
             var game = this.get("game");
-            var image = this.get("image");
+            var image = this.get("message").image;
             var width = image.width;
             var height = image.height;
             var left = game.canvas.width / 2 - width / 2;
@@ -82,11 +82,11 @@ var StageItem = Backbone.Model.extend(
         draw : function(game) {
 	    function drawer() {		
 		var ctx = game.ctx;
-		var image = this.get("image");
+		var image = this.get("message").image;
 		ctx.save();
 		var top = this.frame.top;
 		if(top <= 0) {
-		    top = 0
+		    top = 0;
 		} else if(top + this.frame.height > game.frame.bottom) {
 		    top = game.frame.bottom - this.frame.height;
 		}
@@ -300,14 +300,5 @@ SortingGame.prototype = _.extend(
 
 });
 
-
-
-MESSAGES = [
-    "EU for|dert „un|ver|züg|li|chen Rück|tritt“ Gad|dafis",
-    "Erste Test|be|richte zum iPad 2 lo|ben die ho|he Ge|schwin|dig|keit",
-
-    "Posch muss drau|ßen blei|ben"];
-//     "NRW-Am|bi|tio|nen: Rött|gen gibt sich trotz E10-De|sas|ter selbst|be|wusst"
-// ];
 
 

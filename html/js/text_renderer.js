@@ -142,15 +142,14 @@ function render_messages(messages, max_width, options) {
     canvas.attr("width", max_width);
     canvas.attr("height", max_width);
     var ctx = canvas.get(0).getContext("2d");
-    var res = {};
     _.forEach(messages,
-              function(text) {
+              function(message) {
+		  var text = message.headline;
 		  ctx.globalCompositeOperation = "copy";
 		  ctx.fillStyle = 'rgba(0, 0, 0, 255)';
 		  ctx.fillRect(0, 0, max_width, max_width);
 		  ctx.globalCompositeOperation = "source-over";
-                  res[text] = render_text(ctx, max_width, max_width, text, o);
+                  message.image = render_text(ctx, max_width, max_width, text, o);
               }
              );
-    return res;
 }

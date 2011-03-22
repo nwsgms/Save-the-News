@@ -5,7 +5,8 @@ var NewsItem = Backbone.Model.extend(
             _.bindAll(this, "render", "draw", "collides",
                       "placable", "statechanged", "floating");
             var game = this.get("game");
-            var image = this.get("image");
+	    var message = this.get("message");
+            var image = message.image;
             var width = image.width;
             var height = image.height;
             var left = game.canvas.width / 2 - width / 2;
@@ -26,6 +27,11 @@ var NewsItem = Backbone.Model.extend(
             var game = this.get("game");
             switch(this.get("state")) {
             case "floating":
+		// first, check if we are hitting a dropzone. If yes,
+		// we are consumed
+		if(game.hit_dropzone(this)) {
+		    return;
+		}
                 // we fly back to bottom position
                 var left = game.canvas.width / 2 - this.frame.width / 2;
                 var top = game.canvas.height - this.frame.height;
@@ -34,9 +40,11 @@ var NewsItem = Backbone.Model.extend(
                 // ours then 
                 if(game.floaters.length) {
                     game.floaters.forEach(
-                        function(floater) {
-                            top = Math.min(floater.float.top - this.frame.height, top); 
-                        }
+                        _.bind(
+			    function(floater) {
+				top = Math.min(floater.float.top - this.frame.height, top); 
+                            },
+			    this)
                     );
                 }
                 var dx = (left - this.frame.left) / game.FLOAT_TIME;
@@ -61,11 +69,15 @@ var NewsItem = Backbone.Model.extend(
 
         placable : function() {
             var game = this.get("game");
-            if(game.length > 0) {
-                var gap = game.at(0).frame.top;
-                return gap >= this.frame.height;
-            }
-            return true;
+	    var top = game.frame.bottom;
+	    game.forEach(
+		function(item) {
+		    if(item.get("state") == "resting") {
+			top = Math.min(item.frame.top, top);
+		    }
+		}
+	    );
+            return top >= this.frame.height;
         },
 
         render : function(game, elapsed) {
@@ -82,7 +94,6 @@ var NewsItem = Backbone.Model.extend(
             case "dragging":
                 this.frame.move(game.mousepos);
                 this.frame.translate(this.drag_offset);
-                game.hit_dropzone(this);
                 break;
             case "floating":
                 this.frame.translate(this.float.dx * elapsed, 
@@ -131,13 +142,13 @@ var NewsItem = Backbone.Model.extend(
         draw : function(game) {
 	    function drawer() {
 		var ctx = game.ctx;
-		var image = this.get("image");
+		var image = this.get("message").image;
 		ctx.save();
 		ctx.putImageData(image, this.frame.left, this.frame.top);
 		ctx.restore();
 	    }
 	    drawer = _.bind(drawer, this);
-	    drawer.zindex = 0;
+	    drawer.zindex = this.get("state") == "dragging" ? 200 : 0;
 	    return drawer;
         }
     }
