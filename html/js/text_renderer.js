@@ -119,7 +119,12 @@ function render_text(ctx, w, h, text, options) {
 
     place_text(text, options.text_style, fontsize, ctx, tw, th);
     ctx.restore();
-    return ctx.getImageData(0, 0, w, h);
+    image_data = ctx.getImageData(0, 0, w, h);
+    var img_canvas = document.createElement("canvas");
+    img_canvas.setAttribute("width", w);
+    img_canvas.setAttribute("height", h);
+    img_canvas.getContext("2d").putImageData(image_data, 0, 0);
+    return img_canvas;
 }
 
 function render_messages(messages, max_width, options) {

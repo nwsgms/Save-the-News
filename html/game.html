@@ -12,6 +12,7 @@
     <script type="text/javascript" src="js/ui/jquery.ui.draggable.js"></script>
     <script type="text/javascript" src="js/ui/jquery.effects.core.js"></script>
     <script type="text/javascript" src="js/ui/jquery.effects.fade.js"></script>
+    <script type="text/javascript" src="js/resources.js"></script>
     <script type="text/javascript" src="js/rect.js"></script>
     <script type="text/javascript" src="js/sprintf.js"></script>
     <script type="text/javascript" src="js/string.js"></script>
@@ -23,17 +24,18 @@
     <script type="text/javascript" src="js/sorting.js"></script>
     <script type="text/javascript" src="js/game.js"></script>
     <script type="text/javascript" src="js/start.js"></script>
+    <script type="text/javascript" src="js/loader.js"></script>
     <link rel="stylesheet" href="css/test.css" type="text/css" media="all" ></script>
     <title>Save the News</title>
   </head>
   <body>
     <h1>Save the news</h1>
-    <canvas id="arena" width="600" height="600"></canvas>
+    <canvas id="arena" width="960" height="480"></canvas>
 
     <script type="text/javascript">
       $(function() {
       var canvas = $("#arena").get(0);
-      window.game = new StartScreen(canvas, 30.0);
+      window.game = new LoadScreen(canvas, 30.0); //new StartScreen(canvas, 30.0);
       window.game.debug = true;
       window.game.start();
       function mousedown(event) {

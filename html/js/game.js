@@ -104,7 +104,7 @@ Game.prototype = _.extend(
             var plan = new Schedule(3, this, "#0f0", 0, 0, canvas.width / 4, canvas.height);
             var bin = new DropZone(this, "#f00", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
             this.dropzones = [plan, bin];
-	    this.td = new TimerDisplay(60.0, 19, 59, 0);
+	    this.td = new TimerDisplay(60.0);
             this.length = 0;
             this.running = false;
             this.debug = false;
@@ -279,9 +279,8 @@ Game.prototype = _.extend(
 	    // clear background
             var ctx = this.ctx;
             ctx.save();
-            ctx.fillStyle = this.BACKGROUND_COLOR;
-            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-
+	    var bg = rm.get("start_bg");
+	    ctx.drawImage(bg, 0, 0);
 
 	    var drawers = [];
 	    drawers.push(this.td.render(this, elapsed));

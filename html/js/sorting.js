@@ -90,7 +90,7 @@ var StageItem = Backbone.Model.extend(
 		} else if(top + this.frame.height > game.frame.bottom) {
 		    top = game.frame.bottom - this.frame.height;
 		}
-		ctx.putImageData(image, this.frame.left, top);		
+		ctx.drawImage(image, this.frame.left, top);		
 		ctx.restore();
 	    };
 	    drawer = _.bind(drawer, this);

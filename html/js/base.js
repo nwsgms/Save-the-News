@@ -64,13 +64,17 @@ GameBase.prototype = {
 	this.running = false;
 	function drawer() {
             ctx.save();
-            ctx.strokeStyle = "#f00";
-            ctx.fillStyle = "#f00";
+	    ctx.globalAlpha = .65;
+	    ctx.fillStyle = "#000";
+	    ctx.fillRect(0, 0, this.frame.width, this.frame.height);
+	    ctx.globalAlpha = 1.0;
+            ctx.strokeStyle = "#fff";
+            ctx.fillStyle = "#fff";
             ctx.font = "40pt Arial";
             var text = "GAME OVER";
             var tm = ctx.measureText(text);
             var left = this.frame.width / 2 - tm.width / 2;
-            var top = this.frame.height / 2 - 40 / 2;
+            var top = this.frame.height / 2 + 40 / 2;
             ctx.fillText(text, left, top);
             ctx.restore();
 	}

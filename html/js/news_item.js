@@ -72,11 +72,14 @@ var NewsItem = Backbone.Model.extend(
 	    var top = game.frame.bottom;
 	    game.forEach(
 		function(item) {
-		    if(item.get("state") == "resting") {
+		    var s = item.get("state");
+		    if(s != "floating" &&
+		       s != "dragging") {
 			top = Math.min(item.frame.top, top);
 		    }
 		}
 	    );
+	    console.log("placable: " + top);
             return top >= this.frame.height;
         },
 
@@ -144,7 +147,7 @@ var NewsItem = Backbone.Model.extend(
 		var ctx = game.ctx;
 		var image = this.get("message").image;
 		ctx.save();
-		ctx.putImageData(image, this.frame.left, this.frame.top);
+		ctx.drawImage(image, this.frame.left, this.frame.top);
 		ctx.restore();
 	    }
 	    drawer = _.bind(drawer, this);

@@ -5,6 +5,17 @@ function TimerDisplay() {
 TimerDisplay.prototype = {
   
     __init__ : function(lifetime, hour, minute, second) {
+	var now = new Date();
+	if(hour === undefined) {
+	    hour = now.getHours();
+	}
+	if(minute === undefined) {
+	    minute = now.getMinutes();
+	}
+	if(second === undefined) {
+	    second = 0;
+	}
+	
 	this.hour = hour;
 	this.minute = minute;
 	this.second = second;
@@ -13,7 +24,7 @@ TimerDisplay.prototype = {
 	this.fill_style = "#fff";
 	this.lineheight = 40;
 	this.top = 0;
-	this.left = 420;
+	this.left = 20;
 	this.fontname = "Arial";
 	this.zindex = 20;
     },

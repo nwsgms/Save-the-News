@@ -35,11 +35,8 @@ StartScreen.prototype = _.extend(
 	loop : function(elapsed) {
             var ctx = this.ctx;
             ctx.save();
-            ctx.fillStyle = this.BACKGROUND_COLOR;
-            ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
-	    ctx.fillStyle = "#fff";
-	    ctx.font = "40px Arial";
-	    ctx.fillText("Click to start", 100, 100);
+	    var bg = rm.get("start_bg");
+	    ctx.drawImage(bg, 0, 0);
 	    ctx.restore();	    
 	},
 
