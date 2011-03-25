@@ -48,13 +48,19 @@ StartScreen.prototype = _.extend(
     GameBase.prototype,
     {
 	BACKGROUND_COLOR : "#afa",
+
 	__init__ : function(canvas, fps) {
 	    GameBase.prototype.__init__.call(this, canvas, fps);
 	    _.bindAll(this, "loop", "mousedown", "start_game", "mouseup", "mousedown");
 	    this.buttons = [];
-	    var start_button = new Button("btn_start", 365, 511);
+	    var start_button = new Button("btn_start", 65, 380);
 	    start_button.bind("click", this.start_game);
 	    this.buttons.push(start_button);
+	    this.animations = [new Animation("kasten1", .5, 22, 250),
+			       new Animation("kasten2", .5, 224, 250),
+			       new Animation("kasten3", .5, 517, 250),
+			       new Animation("kasten4", .5, 742, 250)
+			      ];
 	},
 
 	loop : function(elapsed) {
@@ -66,6 +72,13 @@ StartScreen.prototype = _.extend(
 		      _.bind(
 			  function(button) {
 			      button.render(this, elapsed);
+			  },
+		      this)
+	    );
+	    _.forEach(this.animations,
+		      _.bind(
+			  function(animation) {
+			      animation.render(this, elapsed);
 			  },
 		      this)
 	    );

@@ -4,17 +4,40 @@ RESOURCES = [
     ["btn_start_active", "media/Startseite/Startbutton_aktiv.png"],
     ["btn_info", "media/Startseite/Infobutton_norm.png"],
     ["btn_info_active", "media/Startseite/Infobutton_aktiv.png"],
-    ["corners", "media/Startseite/Corners.png"]
+    ["corners", "media/Startseite/Corners.png"],
+    ["kasten1_01", "media/Startseite/Kasten1/01.png"],
+    ["kasten1_02", "media/Startseite/Kasten1/02.png"],
+    ["kasten1_03", "media/Startseite/Kasten1/03.png"],
+    ["kasten2_01", "media/Startseite/Kasten2/01.png"],
+    ["kasten2_02", "media/Startseite/Kasten2/02.png"],
+    ["kasten2_03", "media/Startseite/Kasten2/03.png"],
+    ["kasten2_04", "media/Startseite/Kasten2/04.png"],
+    ["kasten2_05", "media/Startseite/Kasten2/05.png"],
+    ["kasten3_01", "media/Startseite/Kasten3/01.png"],
+    ["kasten3_02", "media/Startseite/Kasten3/02.png"],
+    ["kasten3_03", "media/Startseite/Kasten3/03.png"],
+    ["kasten3_04", "media/Startseite/Kasten3/04.png"],
+    ["kasten3_05", "media/Startseite/Kasten3/05.png"],
+    ["kasten3_06", "media/Startseite/Kasten3/06.png"],
+    ["kasten4_01", "media/Startseite/Kasten4/01.png"],
+    ["kasten4_02", "media/Startseite/Kasten4/02.png"],
+    ["kasten4_03", "media/Startseite/Kasten4/03.png"],
+    ["kasten4_04", "media/Startseite/Kasten4/04.png"],
+    ["kasten4_05", "media/Startseite/Kasten4/05.png"],
+    ["kasten4_06", "media/Startseite/Kasten4/06.png"],
+    ["kasten4_07", "media/Startseite/Kasten4/03.png"],
+    ["kasten4_08", "media/Startseite/Kasten4/04.png"],
+    ["kasten4_09", "media/Startseite/Kasten4/05.png"],
+    ["kasten4_10", "media/Startseite/Kasten4/06.png"]
 ]
 
 
 var ResourceLoader = Backbone.Model.extend(
     {
 	initialize : function() {
-	    _.bindAll(this, "start", "progress_changed", "loaded");
+	    _.bindAll(this, "start", "loaded");
 	    this.set({"progress" : .0,
 		      "finished" : false});
-	    this.bind("change:progress", this.progress_changed);
 	    this.resources = {};
 	    this.counter = 0;
 	},
@@ -40,12 +63,8 @@ var ResourceLoader = Backbone.Model.extend(
 	    if(this.counter == total) {
 		p = 1.0;
 	    }
-	    this.set({"progress" : p,});
+	    this.set({"progress" : p});
 	    this.set({"finished" : true});
-	},
-
-	progress_changed : function() {
-	    console.log("progress: " +this.get("progress"));
 	},
 
 	get : function(handle) {
