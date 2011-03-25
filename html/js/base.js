@@ -7,7 +7,7 @@ function GameBase() {
 GameBase.prototype = {
     __init__ : function(canvas, fps) {
 	_.bindAll(this, "render_debug_info", "game_over_screen", "start",
-		  "run", "schedule");
+		  "run", "schedule", "mousepos");
 	this.fps = fps;
 	this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
@@ -25,7 +25,7 @@ GameBase.prototype = {
 	// skip the first frame
 	if(this.now === undefined) {
 	    this.now = t;
-	    this.start();
+	    this.schedule();
 	}
         var elapsed = (t - this.now) / 1000.0;
         if (elapsed == 0) {
@@ -59,7 +59,17 @@ GameBase.prototype = {
 	drawer.zindex = 1000;
 	return drawer;
     },
- 
+
+    mousepos : function(e) {
+        var c = $(this.canvas);
+        var x = Math.floor((e.pageX - c.offset().left));
+        var y = Math.floor((e.pageY - c.offset().top));
+	return {
+	    x : x,
+	    y : y
+	};
+    },
+
     game_over_screen : function(ctx) {
 	this.running = false;
 	function drawer() {

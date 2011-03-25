@@ -91,20 +91,19 @@ function render_text(ctx, w, h, text, options) {
     }
 
     // draw the background with rounded corners;
+    
+    var corners = rm.get("corners");
+    function dc(x, y) {
+	ctx.drawImage(corners, x, y);
+    }
+    dc(0, 0);
+    dc(w - corners.width, 0);
+    dc(w - corners.width, h - corners.height);
+    dc(0, h - corners.height);
+
     ctx.fillStyle = options.background;
     ctx.fillRect(options.corner_radius, 0, w - options.corner_radius * 2, h);
     ctx.fillRect(0, options.corner_radius, w, h - options.corner_radius * 2);
-    
-    function dc(x, y) {
-        ctx.beginPath();
-        ctx.arc(x, y, options.corner_radius, 0, 360, false);
-        ctx.fill();
-    }
-    dc(options.corner_radius, options.corner_radius);
-    dc(w - options.corner_radius, options.corner_radius);
-    dc(w - options.corner_radius, h - options.corner_radius);
-    dc(options.corner_radius, h - options.corner_radius);
-
 
     // clip the rendering aera
     ctx.save();
@@ -120,7 +119,7 @@ function render_text(ctx, w, h, text, options) {
     place_text(text, options.text_style, fontsize, ctx, tw, th);
     ctx.restore();
     image_data = ctx.getImageData(0, 0, w, h);
-    var img_canvas = document.createElement("canvas");
+    var img_canvas =  document.createElement('canvas');
     img_canvas.setAttribute("width", w);
     img_canvas.setAttribute("height", h);
     img_canvas.getContext("2d").putImageData(image_data, 0, 0);
@@ -136,17 +135,19 @@ function render_messages(messages, max_width, options) {
                     padding_bottom : 10,
                     padding_left: 10,
                     padding_right: 10,
-                    background : "#eef",
+                    background : "#326b9a",
                     corner_radius : 8,
                     text_style : "#000",
                     fontname : "Arial",
                     fontsize : 20
              },
             options);
-    var canvas = $("<canvas/>");
-    canvas.attr("width", max_width);
-    canvas.attr("height", max_width);
-    var ctx = canvas.get(0).getContext("2d");
+    var canvas = window.document.createElement("canvas");//$("<canvas/>");
+    //canvas.attr("width", max_width);
+    //canvas.attr("height", max_width);
+    canvas.width = max_width;
+    canvas.height = max_width;
+    var ctx = canvas.getContext("2d");
     _.forEach(messages,
               function(message) {
 		  var text = message.headline;

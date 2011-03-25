@@ -12,7 +12,7 @@ Rect.prototype = {
   
     __init__ : function(x, y, w, h) {
         _.bindAll(this, "translate", "resize", "overlaps", "contains", "inside",
-                 "normalize", "contains", "move");
+                 "normalize", "move");
         this.x = x;
         this.y = y;
         this.width = w;

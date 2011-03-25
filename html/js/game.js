@@ -106,13 +106,16 @@ Game.prototype = _.extend(
             this.dropzones = [plan, bin];
 	    this.td = new TimerDisplay(60.0);
             this.length = 0;
-            this.running = false;
             this.debug = false;
             this.canvas = canvas;
             this.mousepos = null;
             this.frame = new Rect(0, 0, canvas.width, canvas.height);
             this.state = "running";
-            this.spawn();
+	},
+
+	start : function() {
+	    GameBase.prototype.start.call(this);
+	    this.spawn();
 	},
 	
 	sorting_stage : function(messages) {
@@ -147,6 +150,10 @@ Game.prototype = _.extend(
 	},
 
 	spawn : function() {
+	    console.log("spawn");
+	    if(!this.running) {
+		return;
+	    }
 	    if(_.isEqual(this.messages, [])) {
 		return;
 	    }
@@ -248,7 +255,7 @@ Game.prototype = _.extend(
 	},
 
 	mousemove : function(e) {
-            if(this.state == "over")
+            if(!this.state == "over")
 		return;
             var c = $(this.canvas);
             var x = Math.floor((e.pageX - c.offset().left));

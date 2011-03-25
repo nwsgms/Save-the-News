@@ -142,7 +142,6 @@ SortingGame.prototype = _.extend(
         this.mousepos = null;
         this.ctx = this.canvas.getContext("2d");
         this.frame = new Rect(0, 0, canvas.width, canvas.height);
-        $(canvas).mousedown(this.mousedown).mousemove(this.mousemove).mouseup(this.mouseup);
         this.state = "running";
     },
 
@@ -258,26 +257,6 @@ SortingGame.prototype = _.extend(
                 function(item) { 
                     drawers.push(item.render(this, elapsed));
                 }, this));
-
-        switch(this.state) {
-        case "over":
-	    function go() {		
-		ctx.save();
-		ctx.strokeStyle = "#f00";
-		ctx.fillStyle = "#f00";
-		ctx.font = "40pt Arial";
-		var text = "GAME OVER";
-		var tm = ctx.measureText(text);
-		var left = this.frame.width / 2 - tm.width / 2;
-		var top = this.frame.height / 2 - 40 / 2;
-		ctx.fillText(text, left, top);
-		ctx.restore();
-		this.running = false;
-	    }
-	    go = _.bind(go, this);
-	    go.zindex = 100;
-            break;
-        }
 
         if(this.debug) {
             drawers.push(this.render_debug_info(ctx, elapsed));

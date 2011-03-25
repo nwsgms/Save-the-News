@@ -3,7 +3,8 @@ RESOURCES = [
     ["btn_start", "media/Startseite/Startbutton_norm.png"],
     ["btn_start_active", "media/Startseite/Startbutton_aktiv.png"],
     ["btn_info", "media/Startseite/Infobutton_norm.png"],
-    ["btn_info_active", "media/Startseite/Infobutton_aktiv.png"]
+    ["btn_info_active", "media/Startseite/Infobutton_aktiv.png"],
+    ["corners", "media/Startseite/Corners.png"]
 ]
 
 
