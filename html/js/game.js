@@ -101,8 +101,8 @@ Game.prototype = _.extend(
             render_messages(messages, 240);
             this.game_items = new GameItems();
             this.floaters = new GameItems();
-            var plan = new Schedule(3, this, "#0f0", 0, 0, canvas.width / 4, canvas.height);
-            var bin = new DropZone(this, "#f00", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
+            var plan = new Schedule(3, this, "rgba(0, 255, 0, .5)", 0, 0, canvas.width / 4, canvas.height);
+            var bin = new DropZone(this, "rgba(255, 0, 0, .5)", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
             this.dropzones = [plan, bin];
 	    this.td = new TimerDisplay(60.0);
             this.length = 0;

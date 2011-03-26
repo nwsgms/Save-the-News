@@ -124,7 +124,6 @@ SortingGame.prototype = _.extend(
     GameBase.prototype,
     {
 	GRAVITY : 4.0,
-	BACKGROUND_COLOR : "#faa",
 	FLOAT_TIME : .8,
 	
     __init__ : function(canvas, fps, td) {
@@ -247,8 +246,8 @@ SortingGame.prototype = _.extend(
 	// clear background
         var ctx = this.ctx;
         ctx.save();
-        ctx.fillStyle = this.BACKGROUND_COLOR;
-        ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
+	var bg = rm.get("start_bg");
+	ctx.drawImage(bg, 0, 0);
 	var drawers = [];
 	drawers.push(this.td.render(this, elapsed));
 	this.place_items();
