@@ -64,7 +64,9 @@ var ResourceLoader = Backbone.Model.extend(
 		p = 1.0;
 	    }
 	    this.set({"progress" : p});
-	    this.set({"finished" : true});
+	    if(p == 1.0) {
+		this.set({"finished" : true});
+	    }
 	},
 
 	get : function(handle) {

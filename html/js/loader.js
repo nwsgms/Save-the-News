@@ -26,7 +26,7 @@ LoadScreen.prototype = _.extend(
 	    this.progress = progress;
 	},
 
-	loading_finished : function() {
+	loading_finished : function(manager, finished) {
 	    this.running = false;
 	    window.game = new StartScreen(this.canvas, 30.0);
 	    window.game.start();
