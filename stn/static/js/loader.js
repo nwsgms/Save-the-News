@@ -38,7 +38,7 @@ LoadScreen.prototype = _.extend(
             ctx.fillStyle = this.BACKGROUND_COLOR;
             ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 	    ctx.fillStyle = "#fff";
-	    ctx.font = "40px Arial";
+	    ctx.font = "40px optimer";
 	    ctx.fillText(Math.ceil(this.progress * 100.0) + "%", 100, 100);
 	    ctx.restore();	    
 	},

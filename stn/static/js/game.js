@@ -23,7 +23,7 @@ DropZone.prototype = {
 			 this.frame.width, 
 			 this.frame.height);
             ctx.fillStyle = "#000";
-            ctx.font = "40pt Arial";
+            ctx.font = "40pt optimer";
             var text = "" + this.count;
             var tm = ctx.measureText(text);
             var left = this.frame.left + this.frame.width / 2 - tm.width / 2;

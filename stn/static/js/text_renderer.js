@@ -138,7 +138,7 @@ function render_messages(messages, max_width, options) {
                     background : "#326b9a",
                     corner_radius : 8,
                     text_style : "#000",
-                    fontname : "Arial",
+                    fontname : "optimer",
                     fontsize : 20
              },
             options);

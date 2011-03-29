@@ -18,7 +18,7 @@ function redraw() {
                     background : "#eef",
                     corner_radius : 8,
                     text_style : "#000",
-                    fontname : "Arial",
+                    fontname : "optimer",
                     fontsize : fontsize
                 });
 }

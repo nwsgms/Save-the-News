@@ -3,15 +3,15 @@
 <html xmlns="http://www.w3.org/1999/xhtml">
   <head>
     <meta http-equiv="content-type" content="text/html;charset=utf-8"/>
-    <script type="text/javascript" src="js/jquery-1.5.1.js"></script>
+    <meta name="viewport" content="width=device-width; initial-scale=1.0; maximum-scale=1.0; user-scalable=0;" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta names="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+    <script type="text/javascript" src="js/canvas.text.js"></script>
+    <script type="text/javascript" src="js/faces/optimer_regular.typeface.js"></script>
     <script type="text/javascript" src="js/underscore.js"></script>
     <script type="text/javascript" src="js/backbone.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.ui.core.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.ui.widget.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.ui.mouse.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.ui.draggable.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.effects.core.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.effects.fade.js"></script>
+    <script type="text/javascript" src="js/jquery-1.5.1.js"></script>
+    <script type="text/javascript" src="js/touchmanager.js"></script>
     <script type="text/javascript" src="js/resources.js"></script>
     <script type="text/javascript" src="js/rect.js"></script>
     <script type="text/javascript" src="js/sprintf.js"></script>
@@ -26,12 +26,12 @@
     <script type="text/javascript" src="js/game.js"></script>
     <script type="text/javascript" src="js/start.js"></script>
     <script type="text/javascript" src="js/loader.js"></script>
-    <link rel="stylesheet" href="css/test.css" type="text/css" media="all" ></script>
+    <link rel="stylesheet" href="css/iphone3.css" type="text/css" media="all" />
+
     <title>Save the News</title>
   </head>
   <body>
-    <h1>Save the news</h1>
-    <canvas id="arena" width="960" height="480"></canvas>
+    <canvas id="arena" width="480" height="320"></canvas>
 
     <script type="text/javascript">
       $(function() {
@@ -53,6 +53,7 @@
          }
       };
       $(canvas).mousedown(mousedown).mousemove(mousemove).mouseup(mouseup);
+      tm = new TouchManager(canvas);
       });      
     </script>
   </body>

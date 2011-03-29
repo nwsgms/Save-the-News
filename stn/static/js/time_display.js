@@ -25,7 +25,7 @@ TimerDisplay.prototype = {
 	this.lineheight = 40;
 	this.top = 0;
 	this.left = 20;
-	this.fontname = "Arial";
+	this.fontname = "optimer";
 	this.zindex = 20;
     },
 
