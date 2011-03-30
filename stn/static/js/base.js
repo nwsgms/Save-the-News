@@ -99,6 +99,7 @@ GameBase.prototype = {
     },
 
     schedule : function() {
-        setTimeout(this.run, 1000.0 / this.fps);
+	var wait = 1000.0 / this.fps;
+        setTimeout(this.run, wait);
     }
 };

@@ -122,6 +122,10 @@ function render_text(ctx, w, h, text, options) {
     var img_canvas =  document.createElement('canvas');
     img_canvas.setAttribute("width", w);
     img_canvas.setAttribute("height", h);
+    // this is needed for mobile safari, it doesn't produce a proper 2d context
+    // otherwise
+    img_canvas.setAttribute("style", "position:absolute;left:-1000px;top:-1000px;");
+    $("body").append(img_canvas);
     img_canvas.getContext("2d").putImageData(image_data, 0, 0);
     return img_canvas;
 }
@@ -147,6 +151,9 @@ function render_messages(messages, max_width, options) {
     //canvas.attr("height", max_width);
     canvas.width = max_width;
     canvas.height = max_width;
+    canvas.setAttribute("style", "position:absolute;left:-1000px;top:-1000px;");
+    $("body").append(canvas);
+ 
     var ctx = canvas.getContext("2d");
     _.forEach(messages,
               function(message) {
