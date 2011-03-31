@@ -49,8 +49,8 @@ StartScreen.prototype = _.extend(
     {
 	BACKGROUND_COLOR : "#afa",
 
-	__init__ : function(canvas, fps) {
-	    GameBase.prototype.__init__.call(this, canvas, fps);
+	__init__ : function(canvas, fps, scale) {
+	    GameBase.prototype.__init__.call(this, canvas, fps, scale);
 	    _.bindAll(this, "loop", "mousedown", "start_game", "mouseup", "mousedown");
 	    this.buttons = [];
 	    var start_button = new Button("btn_start", 65, 380);
@@ -87,6 +87,7 @@ StartScreen.prototype = _.extend(
 
 	mousedown : function(e) {
 	    var mp = this.mousepos(e);
+	    console.log(mp);
 	    _.forEach(this.buttons,
 		     _.bind(
 		     function(button) {
@@ -110,7 +111,7 @@ StartScreen.prototype = _.extend(
 	    get_messages(
 		_.bind(
 		    function(messages) {
-			window.game = new Game(messages, this.canvas, this.fps);
+			window.game = new Game(messages, this.canvas, this.fps, this.scale);
 			window.debug = this.debug;
 			window.game.start();
 		    }, this));

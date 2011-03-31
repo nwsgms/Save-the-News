@@ -90,8 +90,8 @@ Game.prototype = _.extend(
 	FLOAT_TIME : .8,
 	SPAWN_TIME : 2000,
 
-	__init__ : function(messages, canvas, fps) {
-	    GameBase.prototype.__init__.call(this, canvas, fps);
+	__init__ : function(messages, canvas, fps, scale) {
+	    GameBase.prototype.__init__.call(this, canvas, fps, scale);
             _.bindAll(this, "render_debug_info", "add",
                       "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
                       "bottom_collision_frame", "filter", "at", "spawn", "remove",
@@ -108,7 +108,6 @@ Game.prototype = _.extend(
             this.length = 0;
             this.debug = false;
             this.canvas = canvas;
-            this.mousepos = null;
             this.frame = new Rect(0, 0, canvas.width, canvas.height);
             this.state = "running";
 	},
@@ -120,7 +119,7 @@ Game.prototype = _.extend(
 	
 	sorting_stage : function(messages) {
 	    this.running = false;
-	    window.game = new SortingGame(this.canvas, this.fps, this.td);
+	    window.game = new SortingGame(this.td, this.canvas, this.fps, this.scale);
 	    _.forEach(
 		messages,
 		function(message) {
@@ -211,13 +210,11 @@ Game.prototype = _.extend(
 	mousedown : function(e) {
             if(this.state == "over")
 		return;
-            var c = $(this.canvas);
-            var x = Math.floor((e.pageX - c.offset().left));
-            var y = Math.floor((e.pageY - c.offset().top));
-            this.mousepos = {
-		x : x,
-		y : y
-            };
+	    // record the current mousposition
+	    var mp = this.mousepos(e);
+	    var x = mp.x;
+	    var y = mp.y;
+	    console.log(mp);
             this.forEach(
 		_.bind(
                     function(item) {
@@ -257,19 +254,15 @@ Game.prototype = _.extend(
 	mousemove : function(e) {
             if(!this.state == "over")
 		return;
-            var c = $(this.canvas);
-            var x = Math.floor((e.pageX - c.offset().left));
-            var y = Math.floor((e.pageY - c.offset().top));
-            
-            this.mousepos = {
-		x : x,
-		y : y
-            };
+	    // record the current mousposition
+	    this.mousepos(e);
 	},
 
 	mouseup : function(e) {
             if(this.state == "over")
 		return;
+	    // record the current mousposition
+	    this.mousepos(e);
             this.forEach(
 		function(item)
 		{

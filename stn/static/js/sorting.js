@@ -66,7 +66,7 @@ var StageItem = Backbone.Model.extend(
 		this.frame.translate(0, this.force * elapsed);
                 break;
             case "dragging":
-                this.frame.move(this.frame.left, game.mousepos.y);
+                this.frame.move(this.frame.left, game.mousepos().y);
                 this.frame.translate(0, this.drag_offset.y);
 		if(this.frame.top < game.frame.top) {
 		    this.frame.move(this.frame.left, game.frame.top);
@@ -126,8 +126,8 @@ SortingGame.prototype = _.extend(
 	GRAVITY : 4.0,
 	FLOAT_TIME : .8,
 	
-    __init__ : function(canvas, fps, td) {
-	GameBase.prototype.__init__.call(this, canvas, fps);
+    __init__ : function(td, canvas, fps, scale) {
+	GameBase.prototype.__init__.call(this, canvas, fps, scale);
         _.bindAll(this, "loop", "start", "render_debug_info", "add",
                  "mousedown", "mousemove", "mouseup", "over",
                  "bottom_collision_frame", "filter", "at", "spawn", "remove",
@@ -138,7 +138,6 @@ SortingGame.prototype = _.extend(
         this.fps = fps;
         this.running = false;
         this.canvas = canvas;
-        this.mousepos = null;
         this.ctx = this.canvas.getContext("2d");
         this.frame = new Rect(0, 0, canvas.width, canvas.height);
         this.state = "running";
@@ -170,7 +169,7 @@ SortingGame.prototype = _.extend(
     over : function() {
 	this.running = false;
         this.state = "over";
-	window.game = new StartScreen(this.canvas, this.fps);
+	window.game = new StartScreen(this.canvas, this.fps, this.scale);
 	window.game.debug = this.debug;
 	window.game.start(0);
     },
@@ -178,20 +177,14 @@ SortingGame.prototype = _.extend(
     mousedown : function(e) {
         if(this.state == "over")
             return;
-        var c = $(this.canvas);
-        var x = Math.floor((e.pageX - c.offset().left));
-        var y = Math.floor((e.pageY - c.offset().top));
-        this.mousepos = {
-            x : x,
-            y : y
-        };
+	var mp = this.mousepos(e);
         this.forEach(
             _.bind(
                 function(item) {
-                    if(item.frame.contains(x, y)) {
+                    if(item.frame.contains(mp.x, mp.y)) {
                         item.drag_offset = {
-                            x : item.frame.x - x,
-                            y : item.frame.y - y
+                            x : item.frame.x - mp.x,
+                            y : item.frame.y - mp.y
                             
                         };
                         item.set({"state" : "dragging"});
@@ -203,19 +196,15 @@ SortingGame.prototype = _.extend(
     mousemove : function(e) {
         if(this.state == "over")
             return;
-        var c = $(this.canvas);
-        var x = Math.floor((e.pageX - c.offset().left));
-        var y = Math.floor((e.pageY - c.offset().top));
-        
-        this.mousepos = {
-            x : x,
-            y : y
-        };
+	// record the mousepos
+	this.mousepos(e);
     },
 
     mouseup : function(e) {
         if(this.state == "over")
             return;
+	// record the mousepos
+	this.mousepos(e);
         this.forEach(
 	    function(item) {
                 if(item.get("state") == "dragging") {

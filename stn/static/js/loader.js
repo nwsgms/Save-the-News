@@ -8,8 +8,8 @@ LoadScreen.prototype = _.extend(
     {
 	BACKGROUND_COLOR : "#346e9e",
 
-	__init__ : function(canvas, fps) {
-	    GameBase.prototype.__init__.call(this, canvas, fps);
+	__init__ : function(canvas, fps, scale) {
+	    GameBase.prototype.__init__.call(this, canvas, fps, scale);
 	    _.bindAll(this, "loop", "progress_changed", "loading_finished");
 	    window.rm = new ResourceLoader();
 	    window.rm.bind("change:progress", this.progress_changed);
@@ -28,7 +28,7 @@ LoadScreen.prototype = _.extend(
 
 	loading_finished : function(manager, finished) {
 	    this.running = false;
-	    window.game = new StartScreen(this.canvas, 30.0);
+	    window.game = new StartScreen(this.canvas, 30.0, this.scale);
 	    window.game.start();
 	},
 

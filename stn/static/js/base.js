@@ -4,13 +4,30 @@ function GameBase() {
     
 };
 
+SCALED = false;
+
 GameBase.prototype = {
-    __init__ : function(canvas, fps) {
+    __init__ : function(canvas, fps, scale) {
 	_.bindAll(this, "render_debug_info", "game_over_screen", "start",
 		  "run", "schedule", "mousepos");
+	if(scale === undefined) {
+	    scale = { x : 1.0, y : 1.0};
+	}
+	if(typeof(scale) == "number") {
+	    scale = { x : scale, y : scale};
+	}
+	this.scale = scale;
 	this.fps = fps;
 	this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
+	// ok, this sucks, but it appears as if 
+	// the context you get from a canvas *is* already
+	// scaled, once it has been scaled before..
+	if(!SCALED) {
+	    this.ctx.scale(scale.x, scale.y);
+	    SCALED = true;	    
+	}
+
 	this.running = false;
 	this.debug = false;
         this.max_fps = 0;
@@ -61,13 +78,18 @@ GameBase.prototype = {
     },
 
     mousepos : function(e) {
+	if(e === undefined) {
+	    return this._mousepos;
+	}
         var c = $(this.canvas);
         var x = Math.floor((e.pageX - c.offset().left));
         var y = Math.floor((e.pageY - c.offset().top));
-	return {
-	    x : x,
-	    y : y
+	var res = {
+	    x : x / this.scale.x,
+	    y : y / this.scale.y
 	};
+	this._mousepos = res;
+	return res;
     },
 
     game_over_screen : function(ctx) {

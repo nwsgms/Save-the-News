@@ -95,7 +95,7 @@ var NewsItem = Backbone.Model.extend(
                 }
                 break;
             case "dragging":
-                this.frame.move(game.mousepos);
+                this.frame.move(game.mousepos());
                 this.frame.translate(this.drag_offset);
                 break;
             case "floating":
