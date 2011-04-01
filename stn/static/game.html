@@ -32,12 +32,13 @@
   </head>
   <body>
     <h1>Save the news</h1>
-    <canvas id="arena" width="960" height="480"></canvas>
+    <!--canvas id="arena" width="960" height="480"></canvas-->
+    <canvas id="arena" width="480" height="320"></canvas>
 
     <script type="text/javascript">
       $(function() {
       var canvas = $("#arena").get(0);
-      window.game = new LoadScreen(canvas, 30.0, .5); //new StartScreen(canvas, 30.0);
+      window.game = new LoadScreen(canvas, 30.0, canvas.width / 960.0); //new StartScreen(canvas, 30.0);
       window.game.debug = true;
       window.game.start();
       function mousedown(event) {
