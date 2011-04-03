@@ -12,7 +12,7 @@ Rect.prototype = {
   
     __init__ : function(x, y, w, h) {
         _.bindAll(this, "translate", "resize", "overlaps", "contains", "inside",
-                 "normalize", "move");
+                 "normalize", "move", "toString");
         this.x = x;
         this.y = y;
         this.width = w;
@@ -69,8 +69,8 @@ Rect.prototype = {
         this.topright = {x : this.right, y : this.top};
         this.bottomleft = {x : this.left, y : this.bottom};
         this.bottomright = {x : this.right, y : this.bottom};
-	this.center_x = (this.left + this.right) / 2;
-	this.center_y = (this.top + this.bottom) / 2;
+        this.center_x = (this.left + this.right) / 2;
+        this.center_y = (this.top + this.bottom) / 2;
     },
 
     contains : function(x, y) {
@@ -83,21 +83,25 @@ Rect.prototype = {
 
     overlaps : function(other, descend) {
         var res = this.contains(other.topleft) || this.contains(other.topright) 
-	    || this.contains(other.bottomleft) || this.contains(other.bottomright);
-	if(res)
-	    return true;
-	if(descend === false) {
-	    // we might be in cross-shape-land, let's verify
-	    return (this.left > other.left && this.right < other.right 
-		&& this.top < other.top && this.bottom > other.bottom) ||
-		(this.left < other.left && this.right > other.right 
-		&& this.top > other.top && this.bottom < other.bottom);
-	}
-	return other.overlaps(this, false);
+            || this.contains(other.bottomleft) || this.contains(other.bottomright);
+        if(res)
+            return true;
+        if(descend === false) {
+            // we might be in cross-shape-land, let's verify
+            return (this.left > other.left && this.right < other.right 
+                && this.top < other.top && this.bottom > other.bottom) ||
+                (this.left < other.left && this.right > other.right 
+                && this.top > other.top && this.bottom < other.bottom);
+        }
+        return other.overlaps(this, false);
     },
 
     inside : function(other) {
         return other.contains(this.topleft) && other.contains(this.topright) && other.contains(this.bottomleft) && other.contains(this.bottomright);
+    },
+
+    toString : function() {
+        return sprintf("<rect %d %d %d %d>", this.left, this.top, this.width, this.height);
     }
 
     

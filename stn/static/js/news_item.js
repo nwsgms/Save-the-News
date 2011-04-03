@@ -5,11 +5,11 @@ var NewsItem = Backbone.Model.extend(
             _.bindAll(this, "render", "draw", "collides",
                       "placable", "statechanged", "floating");
             var game = this.get("game");
-	    var message = this.get("message");
+            var message = this.get("message");
             var image = message.image;
             var width = image.width;
             var height = image.height;
-            var left = game.canvas.width / 2 - width / 2;
+            var left = game.frame.width / 2 - width / 2;
             var top = 0;
             this.drag_offset = null;
             this.velocity = 0.0;
@@ -27,24 +27,24 @@ var NewsItem = Backbone.Model.extend(
             var game = this.get("game");
             switch(this.get("state")) {
             case "floating":
-		// first, check if we are hitting a dropzone. If yes,
-		// we are consumed
-		if(game.hit_dropzone(this)) {
-		    return;
-		}
+                // first, check if we are hitting a dropzone. If yes,
+                // we are consumed
+                if(game.hit_dropzone(this)) {
+                    return;
+                }
                 // we fly back to bottom position
-                var left = game.canvas.width / 2 - this.frame.width / 2;
-                var top = game.canvas.height - this.frame.height;
+                var left = game.frame.width / 2 - this.frame.width / 2;
+                var top = game.frame.height - this.frame.height;
                 // if we have other floaters, determine the highest 
                 // destination position of one of them, and that's
                 // ours then 
                 if(game.floaters.length) {
                     game.floaters.forEach(
                         _.bind(
-			    function(floater) {
-				top = Math.min(floater.float.top - this.frame.height, top); 
+                            function(floater) {
+                                top = Math.min(floater.float.top - this.frame.height, top); 
                             },
-			    this)
+                            this)
                     );
                 }
                 var dx = (left - this.frame.left) / game.FLOAT_TIME;
@@ -69,17 +69,17 @@ var NewsItem = Backbone.Model.extend(
 
         placable : function() {
             var game = this.get("game");
-	    var top = game.frame.bottom;
-	    game.forEach(
-		function(item) {
-		    var s = item.get("state");
-		    if(s != "floating" &&
-		       s != "dragging") {
-			top = Math.min(item.frame.top, top);
-		    }
-		}
-	    );
-	    console.log("placable: " + top);
+            var top = game.frame.bottom;
+            game.forEach(
+                function(item) {
+                    var s = item.get("state");
+                    if(s != "floating" &&
+                       s != "dragging") {
+                        top = Math.min(item.frame.top, top);
+                    }
+                }
+            );
+            console.log("placable: " + top);
             return top >= this.frame.height;
         },
 
@@ -143,16 +143,16 @@ var NewsItem = Backbone.Model.extend(
         },
 
         draw : function(game) {
-	    function drawer() {
-		var ctx = game.ctx;
-		var image = this.get("message").image;
-		ctx.save();
-		ctx.drawImage(image, this.frame.left, this.frame.top);
-		ctx.restore();
-	    }
-	    drawer = _.bind(drawer, this);
-	    drawer.zindex = this.get("state") == "dragging" ? 200 : 0;
-	    return drawer;
+            function drawer() {
+                var ctx = game.ctx;
+                var image = this.get("message").image;
+                ctx.save();
+                ctx.drawImage(image, this.frame.left, this.frame.top);
+                ctx.restore();
+            }
+            drawer = _.bind(drawer, this);
+            drawer.zindex = this.get("state") == "dragging" ? 200 : 0;
+            return drawer;
         }
     }
 );
