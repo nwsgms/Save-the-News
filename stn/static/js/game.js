@@ -6,11 +6,17 @@ function DropZone() {
 
 DropZone.prototype = {
     __init__ : function(game, style, left, top, width, height) {
-        _.bindAll(this, "render", "hit");
+        _.bindAll(this, "render", "hit", "draw_centered_image");
         this.frame = new Rect(left, top, width, height);
         this.style = style;
         this.count = 0;
         this.game = game;
+    },
+
+    draw_centered_image : function(img, ctx) {
+	var left = this.frame.left + (this.frame.width - img.width) / 2;
+	var top = this.frame.top + (this.frame.height - img.height) / 2;
+	ctx.drawImage(img, left, top);
     },
 
     render : function(game, elapsed) {
@@ -77,10 +83,31 @@ Schedule.prototype = _.extend(
 
 	render : function(game, elapsed) {
 	    var parent_drawable = DropZone.prototype.render.call(this, game, elapsed);
-	    return _.bind(function() {
-		parent_drawable();
-		var name = "sendeplan_" + (1 + this.items.length);
-		game.ctx.drawImage(rm.get(name), this.frame.left, this.frame.top);
+	    return _.bind(
+		function() {
+		    parent_drawable();
+		    var name = "sendeplan_" + (1 + this.items.length);
+		    this.draw_centered_image(rm.get(name), game.ctx);
+	    }, this);
+	}
+    }
+);
+
+function TrashCan() {
+    this.__init__.apply(this, arguments);
+}
+
+TrashCan.prototype = _.extend(
+    {},
+    DropZone.prototype,
+    {
+	render : function(game, elapsed) {
+	    var parent_drawable = DropZone.prototype.render.call(this, game, elapsed);
+	    return _.bind(
+		function() {
+		    parent_drawable();
+		    var img = rm.get("trash");
+		    this.draw_centered_image(img, game.ctx);
 	    }, this);
 	}
     }
@@ -114,7 +141,7 @@ Game.prototype = _.extend(
             this.game_items = new GameItems();
             this.floaters = new GameItems();
             var plan = new Schedule(4, this, "rgba(0, 255, 0, .5)", 0, 0, width / 4, height);
-            var bin = new DropZone(this, "rgba(255, 0, 0, .5)", width - width / 4, 0, width / 4, height);
+            var bin = new TrashCan(this, "rgba(255, 0, 0, .5)", width - width / 4, 0, width / 4, height);
             this.dropzones = [plan, bin];
             this.td = new TimerDisplay(60.0);
             this.length = 0;
@@ -292,16 +319,11 @@ Game.prototype = _.extend(
             var bg = rm.get("start_bg");
             ctx.drawImage(bg, 0, 0);
 
-<<<<<<< HEAD
 	    var table = rm.get("table");
 	    ctx.drawImage(table, 0, this.frame.height - table.height);
 
 	    var drawers = [];
 	    drawers.push(this.td.render(this, elapsed));
-=======
-            var drawers = [];
-            drawers.push(this.td.render(this, elapsed));
->>>>>>> 29ac8f7da4fbd35c657f07468d31c87bbe3e72f7
 
             _.forEach(this.dropzones, 
                       _.bind(

@@ -5,8 +5,13 @@ function Animation() {
 
 Animation.prototype = {
   
-    __init__ : function(basename, delay, left, top) {
+    __init__ : function(basename, delay, left, top, endless) {
 	_.bindAll(this, "render");
+	if(endless === undefined) {
+	    endless = true;
+	}
+	this.endless = endless;
+	this.running = true;
 	this.phases = [];
 	this.left = left;
 	this.top = top;
@@ -33,9 +38,13 @@ Animation.prototype = {
 	var phase = this.phases[this.active];
 	var ctx = game.ctx;
 	ctx.drawImage(phase.image, this.left, this.top);
-	if(this.elapsed >= phase.delay) {
+	if(this.running && this.elapsed >= phase.delay) {
 	    this.elapsed -= phase.delay;
 	    this.active = (this.active + 1) % this.phases.length;
+	    if(!this.endless && this.active == 0) {
+		this.active = this.phases.length - 1;
+		this.running = false;
+	    }
 	}
 	this.elapsed += elapsed;
     }

@@ -6,6 +6,7 @@ RESOURCES = [
     ["btn_info_active", "media/Startseite/Infobutton_aktiv.png"],
     ["corners", "media/Startseite/Corners.png"],
     ["table", "media/Tisch.png"],
+    ["trash", "media/Muelleimer.png"],
     ["kasten1_01", "media/Startseite/Kasten1/01.png"],
     ["kasten1_02", "media/Startseite/Kasten1/02.png"],
     ["kasten1_03", "media/Startseite/Kasten1/03.png"],
