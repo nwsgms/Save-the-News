@@ -117,7 +117,21 @@ TrashCan.prototype = _.extend(
 		    var img = rm.get("trash");
 		    this.draw_centered_image(img, game.ctx);
 	    }, this);
-	}
+	},
+
+        hit : function(news_item) {
+            if(DropZone.prototype.hit.call(this, news_item)) {
+		this.game.add_animation(
+		    new Animation("crumple", 
+				  .2,
+				  news_item.frame.left, 
+				  news_item.frame.top,
+				  false
+				 )
+		);
+            }
+        },
+
     }
 );
 

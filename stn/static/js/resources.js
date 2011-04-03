@@ -52,7 +52,23 @@ RESOURCES = [
     ["add2schedule_13", "media/auf_sendeplan_ziehen/13.png"],
     ["add2schedule_14", "media/auf_sendeplan_ziehen/14.png"],
     ["add2schedule_15", "media/auf_sendeplan_ziehen/15.png"],
-    ["add2schedule_16", "media/auf_sendeplan_ziehen/16.png"]
+    ["add2schedule_16", "media/auf_sendeplan_ziehen/16.png"],
+    ["crumple_01", "media/zerknuellen/01.png"],
+    ["crumple_02", "media/zerknuellen/02.png"],
+    ["crumple_03", "media/zerknuellen/03.png"],
+    ["crumple_04", "media/zerknuellen/04.png"],
+    ["crumple_05", "media/zerknuellen/05.png"],
+    ["crumple_06", "media/zerknuellen/06.png"],
+    ["crumple_07", "media/zerknuellen/07.png"],
+    ["crumple_08", "media/zerknuellen/08.png"],
+    ["crumple_09", "media/zerknuellen/09.png"],
+    ["crumple_10", "media/zerknuellen/10.png"],
+    ["crumple_11", "media/zerknuellen/11.png"],
+    ["crumple_12", "media/zerknuellen/12.png"],
+    ["crumple_13", "media/zerknuellen/13.png"],
+    ["crumple_14", "media/zerknuellen/14.png"],
+    ["crumple_15", "media/zerknuellen/15.png"],
+    ["crumple_16", "media/zerknuellen/16.png"]
 ]
 
 
