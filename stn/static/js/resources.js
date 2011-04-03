@@ -5,6 +5,7 @@ RESOURCES = [
     ["btn_info", "media/Startseite/Infobutton_norm.png"],
     ["btn_info_active", "media/Startseite/Infobutton_aktiv.png"],
     ["corners", "media/Startseite/Corners.png"],
+    ["table", "media/Tisch.png"],
     ["kasten1_01", "media/Startseite/Kasten1/01.png"],
     ["kasten1_02", "media/Startseite/Kasten1/02.png"],
     ["kasten1_03", "media/Startseite/Kasten1/03.png"],
@@ -28,7 +29,13 @@ RESOURCES = [
     ["kasten4_07", "media/Startseite/Kasten4/03.png"],
     ["kasten4_08", "media/Startseite/Kasten4/04.png"],
     ["kasten4_09", "media/Startseite/Kasten4/05.png"],
-    ["kasten4_10", "media/Startseite/Kasten4/06.png"]
+    ["kasten4_10", "media/Startseite/Kasten4/06.png"],
+    ["sendeplan_1", "media/Sendeplan/01.png"],
+    ["sendeplan_2", "media/Sendeplan/02.png"],
+    ["sendeplan_3", "media/Sendeplan/03.png"],
+    ["sendeplan_4", "media/Sendeplan/04.png"], 
+    ["sendeplan_5", "media/Sendeplan/05.png"],
+    ["sendeplan_6", "media/Sendeplan/06.png"]
 ]
 
 

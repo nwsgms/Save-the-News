@@ -73,7 +73,16 @@ Schedule.prototype = _.extend(
                     this.game.sorting_stage(this.items);
                 }
             }
-        }
+        },
+
+	render : function(game, elapsed) {
+	    var parent_drawable = DropZone.prototype.render.call(this, game, elapsed);
+	    return _.bind(function() {
+		parent_drawable();
+		var name = "sendeplan_" + (1 + this.items.length);
+		game.ctx.drawImage(rm.get(name), this.frame.left, this.frame.top);
+	    }, this);
+	}
     }
 );
 
@@ -101,7 +110,7 @@ Game.prototype = _.extend(
             render_messages(messages, 240);
             this.game_items = new GameItems();
             this.floaters = new GameItems();
-            var plan = new Schedule(3, this, "rgba(0, 255, 0, .5)", 0, 0, canvas.width / 4, canvas.height);
+            var plan = new Schedule(6, this, "rgba(0, 255, 0, .5)", 0, 0, canvas.width / 4, canvas.height);
             var bin = new DropZone(this, "rgba(255, 0, 0, .5)", canvas.width - canvas.width / 4, 0, canvas.width / 4, canvas.height);
             this.dropzones = [plan, bin];
 	    this.td = new TimerDisplay(60.0);
@@ -281,6 +290,9 @@ Game.prototype = _.extend(
             ctx.save();
 	    var bg = rm.get("start_bg");
 	    ctx.drawImage(bg, 0, 0);
+
+	    var table = rm.get("table");
+	    ctx.drawImage(table, 0, this.frame.height - table.height);
 
 	    var drawers = [];
 	    drawers.push(this.td.render(this, elapsed));
