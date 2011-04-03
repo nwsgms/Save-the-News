@@ -87,7 +87,7 @@ StartScreen.prototype = _.extend(
 
 	mousedown : function(e) {
 	    var mp = this.mousepos(e);
-	    console.log(mp);
+	    log(mp);
 	    _.forEach(this.buttons,
 		     _.bind(
 		     function(button) {

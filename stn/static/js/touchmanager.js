@@ -1,12 +1,4 @@
 
-function log(m) {
-    if(console === undefined)
-	return;
-    if(console.log === undefined)
-	return;
-    console.log(m);
-}
-
 
 function TouchManager() {
     this.__init__.apply(this, arguments);

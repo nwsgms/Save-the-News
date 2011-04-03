@@ -213,7 +213,7 @@ Game.prototype = _.extend(
         },
 
         spawn : function() {
-            console.log("spawn");
+            log("spawn");
             if(!this.running) {
                 return;
             }
@@ -278,7 +278,7 @@ Game.prototype = _.extend(
             var mp = this.mousepos(e);
             var x = mp.x;
             var y = mp.y;
-            console.log(mp);
+            log(mp);
             this.forEach(
                 _.bind(
                     function(item) {
@@ -306,7 +306,7 @@ Game.prototype = _.extend(
                                 );
                             }
                             item.set({"state" : "dragging"});
-                            console.log(item.frame);
+                            log(item.frame);
                         } else {
                             item.clicked = false;
                         }

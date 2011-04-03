@@ -20,9 +20,9 @@ LoadScreen.prototype = _.extend(
 
 
 	progress_changed : function(manager, progress) {
-	    console.log("progress_changed");
-	    console.log(manager);
-	    console.log(progress);
+	    log("progress_changed");
+	    log(manager);
+	    log(progress);
 	    this.progress = progress;
 	},
 
