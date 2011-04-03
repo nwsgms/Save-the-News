@@ -36,7 +36,23 @@ RESOURCES = [
     ["sendeplan_3", "media/Sendeplan/03.png"],
     ["sendeplan_4", "media/Sendeplan/04.png"], 
     ["sendeplan_5", "media/Sendeplan/05.png"],
-    ["sendeplan_6", "media/Sendeplan/06.png"]
+    ["sendeplan_6", "media/Sendeplan/06.png"],
+    ["add2schedule_01", "media/auf_sendeplan_ziehen/01.png"],
+    ["add2schedule_02", "media/auf_sendeplan_ziehen/02.png"],
+    ["add2schedule_03", "media/auf_sendeplan_ziehen/03.png"],
+    ["add2schedule_04", "media/auf_sendeplan_ziehen/04.png"],
+    ["add2schedule_05", "media/auf_sendeplan_ziehen/05.png"],
+    ["add2schedule_06", "media/auf_sendeplan_ziehen/06.png"],
+    ["add2schedule_07", "media/auf_sendeplan_ziehen/07.png"],
+    ["add2schedule_08", "media/auf_sendeplan_ziehen/08.png"],
+    ["add2schedule_09", "media/auf_sendeplan_ziehen/09.png"],
+    ["add2schedule_10", "media/auf_sendeplan_ziehen/10.png"],
+    ["add2schedule_11", "media/auf_sendeplan_ziehen/11.png"],
+    ["add2schedule_12", "media/auf_sendeplan_ziehen/12.png"],
+    ["add2schedule_13", "media/auf_sendeplan_ziehen/13.png"],
+    ["add2schedule_14", "media/auf_sendeplan_ziehen/14.png"],
+    ["add2schedule_15", "media/auf_sendeplan_ziehen/15.png"],
+    ["add2schedule_16", "media/auf_sendeplan_ziehen/16.png"]
 ]
 
 

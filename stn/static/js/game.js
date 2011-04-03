@@ -78,6 +78,14 @@ Schedule.prototype = _.extend(
                 if(this.count >= this.capacity) {
                     this.game.sorting_stage(this.items);
                 }
+		this.game.add_animation(
+		    new Animation("add2schedule", 
+				  .2,
+				  news_item.frame.left, 
+				  news_item.frame.top,
+				  false
+				 )
+		);
             }
         },
 
@@ -130,7 +138,7 @@ Game.prototype = _.extend(
             _.bindAll(this, "render_debug_info", "add",
                       "mousedown", "mousemove", "mouseup", "pre_rendering", "over",
                       "bottom_collision_frame", "filter", "at", "spawn", "remove",
-                      "hit_dropzone", "sorting_stage", "loop");
+                      "hit_dropzone", "sorting_stage", "loop", "add_animation");
 
             GameBase.prototype.__init__.call(this, canvas, fps, scale);
             var width = canvas.width / this.scale.x;
@@ -146,8 +154,13 @@ Game.prototype = _.extend(
             this.td = new TimerDisplay(60.0);
             this.length = 0;
             this.frame = new Rect(0, 0, width, height);
+	    this.animations = [];
             this.state = "running";
         },
+
+	add_animation : function(animation) {
+	    this.animations.push(animation);
+	},
 
         start : function() {
             GameBase.prototype.start.call(this);
@@ -331,7 +344,22 @@ Game.prototype = _.extend(
                               drawers.push(dz.render(this, elapsed));
                           }, this)
                      );
-
+	    
+	    this.animations = _.filter(this.animations,
+				      function(animation) {
+					  return animation.running;
+				      });
+	    
+	    var game = this;
+	    _.forEach(this.animations,
+		      function(animation) {
+			  function drawer() {
+			      animation.render(game, elapsed);
+			  }
+			  drawer.zindex = 5;
+			  drawers.push(drawer);
+		      }
+		     );
             this.game_items.forEach(
                 _.bind(
                     function(item) 
