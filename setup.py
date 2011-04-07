@@ -13,12 +13,15 @@ setup(
     zip_safe=False,
     include_package_data=True,
     install_requires=[
+        "abl.util",
         "bottle",
         "Genshi",
         "PasteDeploy",
         "PasteScript",
         "WSGIUtils",
         "ToscaWidgets",
+        "BeautifulSoup",
+        "feedparser",
         ],
     classifiers = [
         'Development Status :: 3 - Alpha',
