@@ -170,7 +170,14 @@ class ImageFormatter(object):
             )
 
 
-class IPhone3_Sorting(ImageFormatter):
+class iPhone3_Sorting(ImageFormatter):
+
+    WIDTH = 300
+    FONTSIZE = 15
+    VSPACING = 3
+    
+
+class iPhone3_Selecting(ImageFormatter):
 
     WIDTH = 200
     FONTSIZE = 15

@@ -1,7 +1,15 @@
+from __future__ import absolute_import
 import os
-from bottle import route, run, static_file, redirect, request, default_app
+
+from bottle import route, run, static_file, redirect, request, response
 import time
 
+from .util import transactional
+
+from .newsaggregator import (
+    sample,
+    NewsEntry,
+    )
 
 SLOW_LOADING = False
 
@@ -20,12 +28,28 @@ def root(filename):
     return static_file(filename, root=base)
 
 
+@route("/sample")
+@transactional
+def web_sample():
+    entries = sample()
+    return dict(
+        news=dict(
+            (category, [
+                dict(
+                    id=entry.id,
+                    title=entry.title,
+                    ) for entry in entries
+                ]) for category, entries in entries.iteritems()
+            )
+        )
+    
 
-def app_factory(global_config, **local_conf):
-    global SLOW_LOADING
-    SLOW_LOADING = "true" == local_conf.get("slow_loading", "false")
-    return default_app()
 
-
-if __name__ == '__main__':
-    run(host='localhost', port=8080)
+@route("/textblock/:device/:stage/:id")
+@transactional
+def textblock(device, stage, id):
+    format = "%s_%s" % (device, stage)
+    entry = NewsEntry.get(id)
+    image = entry.image4format(format)
+    response.headers["Content-type"] = "image/png"
+    return image

@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 import time
 from datetime import timedelta
 
@@ -9,7 +10,12 @@ from stn.newsaggregator import (
     NewsEntry,
     Config,
     fetch_news,
+    sample,
+    STANDARD_DISTRIBUTION,
+    CantSampleEnough,
     )
+
+from .common import fake_news
 
 
 def setup():
@@ -48,4 +54,22 @@ def test_news_fetching():
     session.commit()
     for entry in NewsEntry.query.all():
         print len(entry.teaser_image)
-        
+    
+
+
+def test_news_sampling():
+    fake_news(STANDARD_DISTRIBUTION)
+    session.commit()
+    res = sample()
+    for c, num in STANDARD_DISTRIBUTION.iteritems():
+        assert len(res[c]) == num
+
+    try:
+        count = NewsEntry.query.count()
+        d = dict((c, count) for c, _ in STANDARD_DISTRIBUTION.iteritems())
+
+        sample(d)
+    except CantSampleEnough:
+        pass
+    else:
+        assert Fail, "Shouldn't be able to sample this"

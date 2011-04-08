@@ -1,7 +1,10 @@
+from __future__ import absolute_import
 import os
 import sys
 import urllib2
 import logging
+import random
+from cStringIO import StringIO
 
 import feedparser
 from BeautifulSoup import BeautifulSoup
@@ -25,7 +28,10 @@ from elixir import (
     OneToMany,
     ManyToOne,
     )
+from sqlalchemy.sql import and_
 
+
+from .textrenderer import ImageFormatter
 
 logger = logging.getLogger(__name__)
 
@@ -64,6 +70,22 @@ class NewsEntry(Entity):
             category=feed_entry.category,
             )
 
+
+    def image4format(self, format):
+        image = Image.query.filter_by(
+            format=format,
+            entry=self).first()
+        if image is None:
+            img = ImageFormatter(format).render_image(self.title)
+            data = StringIO()
+            img.save(data, "PNG")
+            image = Image(
+                data=data.getvalue(),
+                entry=self,
+                format=format,
+                )
+        return image.data
+        
 
 class Image(Entity):
 
@@ -129,6 +151,13 @@ def fetch_news():
     return count
 
 
+def configure_db(dburi):
+    metadata.bind = dburi
+    #metadata.bind.echo = True    
+    setup_all()
+    create_all()
+
+
 
 def newsmuncher():
     logging.basicConfig(
@@ -138,10 +167,7 @@ def newsmuncher():
     dbfile = os.path.normpath(os.path.expanduser(sys.argv[1]))
     dburi = "sqlite:///%s" % dbfile
     logger.debug("dburi: %s", dburi)
-    metadata.bind = dburi
-    #metadata.bind.echo = True    
-    setup_all()
-    create_all()
+    configure_db(dburi)
     logger.debug("Existing entries so far:")
     for category, _ in CATEGORIES:
         logger.debug(
@@ -160,3 +186,40 @@ def newsmuncher():
     logger.info("Added %i news.", count)
     config.update()
     session.commit()
+
+
+
+STANDARD_DISTRIBUTION = dict(
+    top=2,
+    international=1,
+    germany=1,
+    economy=1,
+    entertainment=1,
+    )
+
+assert set(STANDARD_DISTRIBUTION.keys()) == set(c for c, _ in CATEGORIES)
+
+
+class CantSampleEnough(Exception):
+    pass
+
+
+def sample(distribution=None, max_age=timedelta(hours=2)):
+    if distribution is None:
+        distribution = STANDARD_DISTRIBUTION
+    res = {}
+    date_limit = datetime.now() - max_age
+    for category, _ in CATEGORIES:
+        entries = NewsEntry.query.filter(
+            and_(
+                NewsEntry.category==category,
+                NewsEntry.valid==True,
+                NewsEntry.created >= date_limit,
+                )).all()
+        if len(entries) < distribution[category]:
+            raise CantSampleEnough()
+        res[category] = random.sample(entries, distribution[category])
+    return res
+
+            
+            

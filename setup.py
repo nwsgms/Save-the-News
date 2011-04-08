@@ -2,7 +2,7 @@ import os
 import sys
 from setuptools import setup, find_packages
 
-test_requirements = ["nose"]
+test_requirements = ["nose", "WebTest", "simplejson"]
 
 setup(
     name="SaveTheNews",
@@ -41,7 +41,7 @@ setup(
     ],
     entry_points={
         'paste.app_factory': [
-            'main=stn.app:app_factory',
+            'main=stn:app_factory',
             ],
          'console_scripts': [
             'newsmuncher = stn.newsaggregator:newsmuncher'
