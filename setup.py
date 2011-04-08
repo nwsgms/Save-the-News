@@ -35,6 +35,9 @@ setup(
     entry_points={
         'paste.app_factory': [
             'main=stn.app:app_factory',
-            ]
+            ],
+         'console_scripts': [
+            'newsmuncher = stn.newsaggregator:newsmuncher'
+            ],
         },
 )

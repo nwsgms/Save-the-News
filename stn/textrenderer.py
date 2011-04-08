@@ -141,15 +141,3 @@ def render_text(
         draw.text((left + tl, top + tt), line, font=font,
                   fill=fontcolor)
     return image
-
-## image = Image.new('RGBA', (100, 100), (0, 0, 0, 0))
-## draw = ImageDraw.Draw(image)
-
-## arial = load_font("arial.ttf", 15)
-
-
-
-## draw.rectangle(((10, 10), (80, 80)), fill=(255, 255, 0, 100))
-## draw.text((10, 25), "world", font=font)
-
-## image.save("/tmp/test.png")
