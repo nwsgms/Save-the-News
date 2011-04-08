@@ -141,3 +141,38 @@ def render_text(
         draw.text((left + tl, top + tt), line, font=font,
                   fill=fontcolor)
     return image
+
+
+class UnknownFormatException(Exception):
+    pass
+
+
+class ImageFormatter(object):
+
+
+    def __new__(cls, name):
+        for sc in cls.__subclasses__():
+            if sc.__name__ == name:
+                return object.__new__(sc, name)
+        raise UnknownFormatException("Unknown format: %s" % name)
+
+
+    def __init__(self, _name):
+        pass
+
+
+    def render_image(self, text):
+        return render_text(
+            text,
+            width=self.WIDTH,
+            fontsize=self.FONTSIZE,
+            vspacing=self.VSPACING,
+            )
+
+
+class IPhone3_Sorting(ImageFormatter):
+
+    WIDTH = 200
+    FONTSIZE = 15
+    VSPACING = 3
+    

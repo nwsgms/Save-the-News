@@ -2,6 +2,8 @@ import os
 import sys
 from setuptools import setup, find_packages
 
+test_requirements = ["nose"]
+
 setup(
     name="SaveTheNews",
     version="0.1",
@@ -22,7 +24,12 @@ setup(
         "ToscaWidgets",
         "BeautifulSoup",
         "feedparser",
+        "Elixir",
         ],
+    extras_require = {
+        "test" : test_requirements
+        },
+    
     classifiers = [
         'Development Status :: 3 - Alpha',
         'Environment :: Web Environment',

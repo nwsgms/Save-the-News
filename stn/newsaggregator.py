@@ -22,6 +22,8 @@ from elixir import (
     LargeBinary,
     Boolean,
     Enum,
+    OneToMany,
+    ManyToOne,
     )
 
 
@@ -41,12 +43,10 @@ class NewsEntry(Entity):
     title = Field(Unicode, required=True)
     created = Field(DateTime, required=True, default=datetime.now)
     teaser_image = Field(LargeBinary)
-    sorting_image = Field(LargeBinary)
-    selecting_image = Field(LargeBinary)
     valid = Field(Boolean, required=True)
     category = Field(Unicode, required=True) #Enum(list(c for c, _ in CATEGORIES) + [None]), required=True)
 
-
+    images = OneToMany("Image")
 
 
     @classmethod
@@ -63,7 +63,15 @@ class NewsEntry(Entity):
             valid=teaser_image is not None,
             category=feed_entry.category,
             )
-                   
+
+
+class Image(Entity):
+
+    format = Field(Unicode, required=True)
+    data = Field(LargeBinary, required=True)
+
+    entry = ManyToOne("NewsEntry")
+    
     
 class Config(Entity):
 

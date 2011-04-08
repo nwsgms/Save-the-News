@@ -4,6 +4,8 @@ from stn.textrenderer import (
     load_font,
     SimpleTextProducer,
     CantPlaceText,
+    ImageFormatter,
+    UnknownFormatException,
     )
 
 
@@ -42,3 +44,16 @@ def test_text_rendering():
     else:
         assert False, "That shouldn't be placeable"
     
+
+def test_format_rendering():
+    for sc in ImageFormatter.__subclasses__():
+        name = sc.__name__
+        image = ImageFormatter(name).render_image("test text")
+        assert image.size[0] == sc.WIDTH
+
+    try:
+        ImageFormatter("foobarabaz")
+    except UnknownFormatException:
+        pass
+    else:
+        assert False, "Should have raised UnknownFormatException"
