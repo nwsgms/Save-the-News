@@ -160,7 +160,7 @@ Game.prototype = _.extend(
             this.messages = messages;
             this.game_items = new GameItems();
             this.floaters = new GameItems();
-            var plan = new Schedule(6, this, "rgba(0, 255, 0, .5)", 0, 0, width / 4, height);
+            var plan = new Schedule(5, this, "rgba(0, 255, 0, .5)", 0, 0, width / 4, height);
             var bin = new TrashCan(this, "rgba(255, 0, 0, .5)", width - width / 4, 0, width / 4, height);
             this.dropzones = [plan, bin];
             this.td = new TimerDisplay(60.0);
@@ -182,25 +182,24 @@ Game.prototype = _.extend(
         sorting_stage : function(messages) {
             this.running = false;
             window.game = new SortingGame(this.td, this.canvas, this.fps, this.scale);
-	    var message = messages.pop();
-	    function set_image(image) {
-		var rm = message.get("message");
-		rm.image = image;
-                var si = new StageItem(
-		    { 
-			game : window.game ,
-                        message : rm
-		    });
-                window.game.add(si);
-		if(messages.length) {
-		    message = messages.pop();
-		    message.get("message").load_image("iPhone3", "Sorting", set_image);
-		} else {
-		    window.game.start();
-		}
-	    }
-            window.game.debug = this.debug;
-	    message.get("message").load_image("iPhone3", "Sorting", set_image);
+	    _.forEach(
+		messages,
+		_.bind(
+		    function(message) {
+			var rm = message.get("message");
+			rm.image = rm.images["Sorting"];
+			var si = new StageItem(
+			    { 
+				game : window.game ,
+				message : rm
+			    });
+			window.game.add(si);
+		    },
+		    this
+		)
+	    );
+	    window.game.debug = this.debug;
+	    window.game.start();
         },
         
         hit_dropzone : function(news_item) {
@@ -231,13 +230,16 @@ Game.prototype = _.extend(
                 delete this.messages[key];
                 break;
             }
-	    message.load_image(
-		"iPhone3", "Selecting",
+	    message.load_images(
+		"iPhone3", 
 		_.bind(
-		    function(image) {
-			message.image = image;
-			var ni = new NewsItem({ game : this ,
-						message : message });
+		    function(message) {
+			message.image = message.images["Selecting"];
+			var ni = new NewsItem(
+			    { game : this ,
+			      message : message 
+			    }
+			);
 			if(!ni.placable()) {
 			    this.over();
 			} else {

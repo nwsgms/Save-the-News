@@ -6,23 +6,39 @@ function Message() {
 Message.prototype = {
   
     __init__ : function(entry)  {
-	_.bindAll(this, "load_image");
+	_.bindAll(this, "load_images");
 	this.headline = entry.headline;
 	this.category = entry.category;
 	this.id = entry.id;
+	this.images = {};
     },
 
-    load_image : function (device, stage, callback) {
-	var image = $("<img/>");
-	image.attr(
-	    "src", 
-	    "/textblock/" + device + "/" + stage + "/" + this.id
-	);
-	image.load(
-	    function() {
-		callback(image.get(0));
-	    }
-	);
+    load_images : function (device, callback) {
+	this.count = 0;
+	_.forEach(
+	    ["Sorting", "Selecting"],
+	    _.bind(
+		function(stage) {
+		    var image = $("<img/>");
+		    image.load(
+			_.bind(
+			    function() {
+				this.count += 1;
+				this.images[stage] = image.get(0);
+				console.log("loaded image");
+				if(this.count == 2) {
+				    callback(this);
+				}
+			    },
+			    this)
+		    );
+		    image.attr(
+			"src", 
+			"/textblock/" + device + "/" + stage + "/" + this.id
+		    );
+		},
+		this)
+	    );
     }
 };
 
