@@ -25,8 +25,7 @@ Message.prototype = {
 			    function() {
 				this.count += 1;
 				this.images[stage] = image.get(0);
-				console.log("loaded image");
-				if(this.count == 2) {
+				if(_.size(this.images) == 2) {
 				    callback(this);
 				}
 			    },

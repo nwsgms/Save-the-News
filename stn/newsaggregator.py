@@ -9,6 +9,7 @@ from ConfigParser import ConfigParser
 
 import feedparser
 from BeautifulSoup import BeautifulSoup
+import Image as PILImage
 
 from abl.util import Bunch
 
@@ -61,7 +62,12 @@ class NewsEntry(Entity):
         teaser_image = feed_entry.image
         if teaser_image is not None:
             res = urllib2.urlopen(teaser_image)
-            teaser_image = res.read()
+            h = res.read()
+            img = PILImage.open(StringIO(h))
+            img.load()
+            outf = StringIO()
+            img.save(outf, "PNG")
+            teaser_image = outf.getvalue()
             
         return cls(
             id=feed_entry.id,

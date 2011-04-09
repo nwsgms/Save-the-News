@@ -68,7 +68,9 @@ RESOURCES = [
     ["crumple_13", "media/zerknuellen/13.png"],
     ["crumple_14", "media/zerknuellen/14.png"],
     ["crumple_15", "media/zerknuellen/15.png"],
-    ["crumple_16", "media/zerknuellen/16.png"]
+    ["crumple_16", "media/zerknuellen/16.png"],
+    ["large_screen", "media/Bildordnung/Screen_gr.png"],
+    ["small_screen", "media/Bildordnung/Kasten_kl_1.png"]
 ]
 
 

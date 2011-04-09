@@ -40,7 +40,21 @@
     <script type="text/javascript">
       $(function() {
       var canvas = $("#arena").get(0);
-      window.game = new LoadScreen(canvas, 30.0, canvas.width / 960.0); //new StartScreen(canvas, 30.0);
+      window.game = new LoadScreen(
+      canvas, 30.0, canvas.width / 960.0,
+        function() {
+           window.game = new ImageSortingGame(
+               new TimerDisplay(60.0),
+               canvas, 30.0, canvas.width / 960.0);
+           get_messages(
+              function(messages) {
+                  window.game.set_messages(messages);
+                  window.game.start();
+              }
+           );
+           
+        }
+      ); 
       window.game.debug = true;
       window.game.start();
       function mousedown(event) {

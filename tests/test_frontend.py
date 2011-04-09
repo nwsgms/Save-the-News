@@ -48,7 +48,7 @@ class FrontendTests(TestCase):
         entry = NewsEntry.query.filter_by(valid=True).first()
 
         device = "iPhone3"
-        for stage in "Selecting", "Sorting":
+        for stage in "Ordering", "Selecting", "Sorting":
             res = self.app.get("/textblock/%s/%s/%s" %
                                (device,
                                 stage,

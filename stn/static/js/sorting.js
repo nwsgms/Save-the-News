@@ -169,7 +169,7 @@ SortingGame.prototype = _.extend(
     over : function() {
         this.running = false;
         this.state = "over";
-        window.game = new StartScreen(this.canvas, this.fps, this.scale);
+        window.game = new ImageSortingPrototype(this.canvas, this.fps, this.scale);
         window.game.debug = this.debug;
         window.game.start(0);
     },

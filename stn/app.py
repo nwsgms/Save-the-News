@@ -54,7 +54,10 @@ def web_sample():
 def textblock(device, stage, id):
     format = "%s_%s" % (device, stage)
     entry = NewsEntry.get(id)
-    image = entry.image4format(format)
+    if stage == "Ordering":
+        image = entry.teaser_image
+    else:
+        image = entry.image4format(format)
     response.headers["Content-type"] = "image/png"
     return image
 
