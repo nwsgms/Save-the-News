@@ -5,6 +5,7 @@ import urllib2
 import logging
 import random
 from cStringIO import StringIO
+from ConfigParser import ConfigParser
 
 import feedparser
 from BeautifulSoup import BeautifulSoup
@@ -158,14 +159,22 @@ def configure_db(dburi):
     create_all()
 
 
+def dburi_from_ini(filename, section="app:main", key="dburi"):
+    cp = ConfigParser(dict(here=os.path.dirname(filename)))
+    cp.read([filename])
+    return cp.get(section, key)
+
 
 def newsmuncher():
     logging.basicConfig(
         level=logging.DEBUG
         )
     logger.info("starting newsmuncher")
-    dbfile = os.path.normpath(os.path.expanduser(sys.argv[1]))
-    dburi = "sqlite:///%s" % dbfile
+    dbfile = os.path.normpath(os.path.abspath(os.path.expanduser(sys.argv[1])))
+    if dbfile.endswith(".ini"):
+        dburi = dburi_from_ini(dbfile)
+    else:
+        dburi = "sqlite:///%s" % dbfile
     logger.debug("dburi: %s", dburi)
     configure_db(dburi)
     logger.debug("Existing entries so far:")

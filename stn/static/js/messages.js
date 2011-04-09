@@ -1,14 +1,43 @@
-MESSAGES = [["i", "EU fordert \u201eun|ver|z\u00fcglichen R\u00fcck|tritt\u201c Gaddafis"], ["d", "Politik: In Sachsen-|Anhalt schlie\u00dft die SPD zur Linken auf"], ["w", "Schwerer Schlag f\u00fcr R\u00fcck|ver|sich|erer"], ["w", "Bahn-Streiks aus|gesetzt: Lok|f\u00fchrer hal|ten still - bis Dienstag"], ["d", "Islamistischer Terror"], ["d", "Auto fliegt auf A 71 \u00fcber Reise|bus - Fah|rer tot"], ["m", "Van Gaal und Veh: Duell in M\u00fcn|chen"], ["u", "Deutscher Film|preis: Sechs Nom|inier|ungen f\u00fcr 'Drei'"], ["m", "Erste Test|berichte zum iPad 2 loben die hohe Ge|schwin|dig|keit"], ["u", "Polizeiermittlungen: Pete Doherty, die Gi|tarre und der Voll|rausch"], ["m", "Vergiftete Apfel|schorle: Knapp f\u00fcnf Jahre Haft f\u00fcr Aldi-Er|press|er"], ["d", "Posch muss drau\u00dfen ble|iben"], ["d", "NRW-|Ambi|tionen: R\u00f6ttgen gibt sich trotz E10|-De|saster selbst|bewusst"], ["d", "Mut|ma\u00dfliche Menschen|h\u00e4ndler schweigen vor Gericht"], ["i", "Berlusconi fehlt beim Prozess |\u2013 Br\u00fcssel ruft"], ["w", "Die IAA bleibt in Frank|furt"], ["w", "Erdbeben in Japan er|sch\u00fcttert Dax"], ["w", "Bahn|-Streiks ausgesetzt: Lok|f\u00fchrer halten still - bis Dien|stag"], ["w", "Die IAA bleibt in Frank|furt"], ["d", "Politik: Kassen|\u00e4rzte-Lobby streitet und best\u00e4tigt ihren Chef"], ["u", "Justin Timber|lake und Jessica Biel: Aus!"], ["w", "Erd|beben in Japan ersch\u00fcttert Dax"], ["i", "Dalai Lama: Tibets geistiger F\u00fchrer zieht sich aus Po|litik zur\u00fcck"], ["i", "Libyen: Niederl\u00e4ndische Sol|daten wieder in Frei|heit"], ["u", "Haus|durch|suchung: Waffen-|Razzia bei Charlie Sheen"], ["m", "Real Madrid siegt mit brill|iantem Mesut \u00d6zil"], ["i", "EU: Bewegung in Euro-|Schulden|krise"], ["i", "Inflation in China bleibt hoch"], ["i", "Biden mahnt Rechts|staatlichkeit in Russ|land an"], ["i", "Krise in der Elfen|bein|k\u00fcste Afrika erkennt Ouat|tara an"], ["i", "Plagiats|aff\u00e4re: Gutten|bergs letzter Streich"], ["i", "Der Papst nennt die Juden un|schul|dig am Tod Jesu"], ["w", "BASF macht Kasse - K+S auf dem Pr\u00e4|sen|tier|teller"], ["w", "Finanzinvestoren wollen Strom|anbieter Tel|daf|ax sanieren"], ["w", "Staats|anwaltschaft durch|sucht Haus von Beluga-|Gr\u00fcnder"], ["w", "Flugverkehr: Flugs|icherung \u2013 Passagier|rekord in Deutsch|land"], ["w", "Pfleiderer sieht Ret|tung nahen - Neue Finanz|ierung vor Ab|schluss"], ["w", "Inflationsrate erstmals seit En|de 2008 \u00fcber 2 Prozent"], ["u", "Der Tigerenten-Papa wird 80"], ["u", "Bieber|mania in Beatles-|Stadt"], ["u", "Gerichts|verhandlung: Model Nadja Auer|mann soll Steuern hinterzogen haben"], ["d", "Gericht verbietet Journalisten Be|richte \u00fcber Miss|brauchs|skandal"], ["d", "EZB-Neubau: Einigung bei Gedenk|st\u00e4tte"], ["d", "Missbrauchsskandal: Katholische Bisch\u00f6fe wollen um Ver|gebung bitten"], ["u", "Barbies Ken wird 50"], ["m", "Horror-Beben im Pa|zifik: Mehr als 1000 Tote in Japan"], ["m", "Atomarer Notstand ausgerufen AKW-|K\u00fchl|kreis|lauf aus|gefal|len"], ["m", "Magath-|Ent|lassung steht nicht auf der Tage|sord|nung"], ["m", "Paukenschlag von Schu|macher"], ["m", "EU will Treffen mit Afrikan|ischer Union und Arab|ischer Liga"], ["m", "Aus und vorbei!"], ["m", "Linke und SPD in Sachsen-|Anhalt gleich|auf"], ["d", "Urteil: Fast f\u00fcnf Jahre Haft f\u00fcr Aldi-|Er|pres|ser"]];
+
+function Message() {
+    this.__init__.apply(this, arguments);
+}
+
+Message.prototype = {
+  
+    __init__ : function(entry)  {
+	_.bindAll(this, "load_image");
+	this.headline = entry.headline;
+	this.category = entry.category;
+	this.id = entry.id;
+    },
+
+    load_image : function (device, stage, callback) {
+	var image = $("<img/>");
+	image.attr(
+	    "src", 
+	    "/textblock/" + device + "/" + stage + "/" + this.id
+	);
+	image.load(
+	    function() {
+		callback(image.get(0));
+	    }
+	);
+    }
+};
 
 function get_messages(callback) {
-    var messages = _.map(
-	MESSAGES,
-	function(m) {
-	    return {
-		category : m[0],
-		headline : m[1]
-	    }
+    $.getJSON(
+	"/sample",
+	{},	
+	function(res) {
+	    var messages = _.map(
+		res.news,
+		function(entry) {
+		    return new Message(entry);
+		}
+	    );
+	    callback(messages);
 	}
     );
-    callback(messages);
 };

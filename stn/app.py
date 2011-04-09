@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import os
+import random
 
 from bottle import route, run, static_file, redirect, request, response
 import time
@@ -32,16 +33,19 @@ def root(filename):
 @transactional
 def web_sample():
     entries = sample()
-    return dict(
-        news=dict(
-            (category, [
-                dict(
-                    id=entry.id,
-                    title=entry.title,
-                    ) for entry in entries
-                ]) for category, entries in entries.iteritems()
+    news = [
+        dict(
+            id=entry.id,
+            headline=entry.title,
+            category=entry.category,
             )
+        for _, news in entries.iteritems() for entry in news
+        ]
+    random.shuffle(news)
+    return dict(
+        news=news
         )
+
     
 
 
@@ -53,3 +57,4 @@ def textblock(device, stage, id):
     image = entry.image4format(format)
     response.headers["Content-type"] = "image/png"
     return image
+

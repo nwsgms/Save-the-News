@@ -79,7 +79,6 @@ var NewsItem = Backbone.Model.extend(
                     }
                 }
             );
-            log("placable: " + top);
             return top >= this.frame.height;
         },
 

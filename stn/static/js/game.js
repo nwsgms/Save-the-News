@@ -158,8 +158,6 @@ Game.prototype = _.extend(
             var width = canvas.width / this.scale.x;
             var height = canvas.height / this.scale.y;
             this.messages = messages;
-            // add the image
-            render_messages(messages, 240);
             this.game_items = new GameItems();
             this.floaters = new GameItems();
             var plan = new Schedule(4, this, "rgba(0, 255, 0, .5)", 0, 0, width / 4, height);
@@ -226,14 +224,22 @@ Game.prototype = _.extend(
                 delete this.messages[key];
                 break;
             }
-            var ni = new NewsItem({ game : this ,
-                                    message : message });
-            if(!ni.placable()) {
-                this.over();
-            } else {
-                this.add(ni);
-                setTimeout(this.spawn, this.SPAWN_TIME);
-            }
+	    message.load_image(
+		"iPhone3", "Selecting",
+		_.bind(
+		    function(image) {
+			message.image = image;
+			var ni = new NewsItem({ game : this ,
+						message : message });
+			if(!ni.placable()) {
+			    this.over();
+			} else {
+			    this.add(ni);
+			    setTimeout(this.spawn, this.SPAWN_TIME);
+			}
+		    },
+		    this)
+	    );
         },
         
         at : function(index) {

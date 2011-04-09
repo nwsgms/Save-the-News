@@ -1,4 +1,5 @@
 import random
+from collections import defaultdict
 from pprint import pprint
 from unittest import TestCase
 from cStringIO import StringIO
@@ -23,7 +24,7 @@ class FrontendTests(TestCase):
     @transactional
     def setUp(self):
         app = app_factory(
-            {},
+            { "debug" : "true" },
             dburi="sqlite:///:memory:"
             )
         fake_news(STANDARD_DISTRIBUTION)
@@ -34,9 +35,13 @@ class FrontendTests(TestCase):
         res = self.app.get("/sample")
         json = loads(res.body)
         news = json["news"]
+        d = defaultdict(list)
+        for n in news:
+            d[n["category"]].append(n)
+
         for c, num in STANDARD_DISTRIBUTION.iteritems():
-            assert c in news, "not in result: " + c
-            assert len(news[c]) == num
+            assert c in d, "not in result: " + c
+            assert len(d[c]) == num
 
 
     def test_textblock_fetching(self):
