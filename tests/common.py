@@ -14,7 +14,8 @@ def fake_news(distribution):
             NewsEntry(
                 id=category + str(i),
                 category=category,
-                title="Title: %s %i" % (category, i),
+                title=u"Title: %s %i" % (category, i),
                 teaser_image=teaser_image,
                 valid=True,
+                abstract=u"abstract %i" % i
                 )

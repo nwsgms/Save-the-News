@@ -49,6 +49,7 @@ class NewsEntry(Entity):
 
     id = Field(Unicode, primary_key=True)
     title = Field(Unicode, required=True)
+    abstract = Field(Unicode, required=True)
     created = Field(DateTime, required=True, default=datetime.now)
     teaser_image = Field(LargeBinary)
     valid = Field(Boolean, required=True)
@@ -75,6 +76,7 @@ class NewsEntry(Entity):
             teaser_image=teaser_image,
             valid=teaser_image is not None,
             category=feed_entry.category,
+            abstract=feed_entry.abstract,
             )
 
 
@@ -132,17 +134,29 @@ class Config(Entity):
     
     
 def process_entry(category, entry):
-    soup = BeautifulSoup(entry.summary)
+    soup = BeautifulSoup(entry.summary_detail.value)
     try:
         image = soup.findAll("img")[0]["src"]
     except KeyError:
         image=None
+    media_header = soup.findAll(
+        "font",
+        attrs=dict(color="#6f6f6f")
+        )[0]
+    while True:
+        media_header = media_header.parent
+        if media_header.name == "font":
+            break
+    abstract = media_header.findNextSibling('font')
+    abstract = abstract.text
+    assert abstract is not None
     title = entry.title.rsplit("-", 1)[0].rstrip()
     return Bunch(
         image=image,
         id=entry.id,
         title=title,
         category=category,
+        abstract=abstract,
         )
 
 
@@ -176,7 +190,12 @@ def newsmuncher():
         level=logging.DEBUG
         )
     logger.info("starting newsmuncher")
-    dbfile = os.path.normpath(os.path.abspath(os.path.expanduser(sys.argv[1])))
+    argv = sys.argv
+    ignore_last_update = False
+    if "--ignore-last-update" in argv:
+        ignore_last_update = True
+        argv.remove("--ignore-last-update")
+    dbfile = os.path.normpath(os.path.abspath(os.path.expanduser(argv[1])))
     if dbfile.endswith(".ini"):
         dburi = dburi_from_ini(dbfile)
     else:
@@ -194,7 +213,7 @@ def newsmuncher():
             )
 
     config = Config.instance()
-    if not config.can_run:
+    if not ignore_last_update and not config.can_run:
         logger.info("Next run possible in %s", config.next_run.isoformat())
         return
     count = fetch_news()

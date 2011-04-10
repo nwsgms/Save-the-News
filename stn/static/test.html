@@ -48,8 +48,18 @@
                canvas, 30.0, canvas.width / 960.0);
            get_messages(
               function(messages) {
-                  window.game.set_messages(messages);
-                  window.game.start();
+                  var count = _.size(messages);
+                  function cb(message) {
+                     count--;
+                     if(count == 0) {
+                        window.game.set_messages(messages);
+                        window.game.start();
+                        console.log("started game");
+                     } else {
+                        messages[count-1].load_images("iPhone3", cb);
+                     }
+                  }
+                  messages[count-1].load_images("iPhone3", cb);
               }
            );
            

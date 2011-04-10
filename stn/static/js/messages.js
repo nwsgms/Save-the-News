@@ -14,9 +14,9 @@ Message.prototype = {
     },
 
     load_images : function (device, callback) {
-	this.count = 0;
+	stages = ["Sorting", "Selecting", "Ordering"];
 	_.forEach(
-	    ["Sorting", "Selecting"],
+	    stages,
 	    _.bind(
 		function(stage) {
 		    var image = $("<img/>");
@@ -25,7 +25,7 @@ Message.prototype = {
 			    function() {
 				this.count += 1;
 				this.images[stage] = image.get(0);
-				if(_.size(this.images) == 2) {
+				if(_.size(this.images) == _.size(stages)) {
 				    callback(this);
 				}
 			    },
