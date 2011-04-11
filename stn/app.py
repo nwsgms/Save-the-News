@@ -2,7 +2,16 @@ from __future__ import absolute_import
 import os
 import random
 
-from bottle import route, run, static_file, redirect, request, response
+from bottle import (
+    route,
+    run,
+    static_file,
+    redirect,
+    request,
+    response,
+    post,
+    )
+
 import time
 
 from .util import transactional
@@ -61,3 +70,11 @@ def textblock(device, stage, id):
     response.headers["Content-type"] = "image/png"
     return image
 
+
+@post("/score")
+def score():
+    ids = request.forms.getall("news[]")
+    entries = [NewsEntry.get(id_) for id_ in ids]
+    categories = [entry.category for entry in entries]
+    print categories
+    return dict(score=97)

@@ -1,3 +1,10 @@
+function construct(constructor, args) {
+    function F() {
+        return constructor.apply(this, args);
+    }
+    F.prototype = constructor.prototype;
+    return new F();
+}
 
 
 function GameBase() {
@@ -136,7 +143,19 @@ GameBase.prototype = {
 
     goto_stage : function(stage) {
 	this.running = false;
-	window.game = new stage(this.canvas, this.fps, this.scale);
+	// I suck at javascript
+	var args = [];
+	if(arguments.length > 1) {
+	    for(var i = 1; i < arguments.length; i++) {
+		args.push(arguments[i]);
+	    }
+	}
+	// add the default args of all
+	// game stages
+	args.push(this.canvas);
+	args.push(this.fps);
+	args.push(this.scale);
+	window.game = construct(stage, args);
 	window.game.start();
     }
 };

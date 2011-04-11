@@ -167,11 +167,26 @@ SortingGame.prototype = _.extend(
     },
 
     over : function() {
-        this.running = false;
-        this.state = "over";
-        window.game = new ImageSortingPrototype(this.canvas, this.fps, this.scale);
-        window.game.debug = this.debug;
-        window.game.start(0);
+	this.running = false; // this is needed because otherwise multiple
+	// post-requests are done.
+	this.stage_items.sort();
+	var params = {
+	    news : this.stage_items.map(
+		function(item) {
+		    return item.get("message").id;
+		}
+	    )
+	};
+	$.post(
+	    "/score",
+	    params,
+	    _.bind(
+		function(data) {
+		    console.log(data);
+		    this.goto_stage(Summary, data.score);
+		},
+		this)
+	);
     },
 
     mousedown : function(e) {

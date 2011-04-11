@@ -238,7 +238,7 @@ class CantSampleEnough(Exception):
     pass
 
 
-def sample(distribution=None, max_age=timedelta(hours=2)):
+def sample(distribution=None, max_age=timedelta(hours=24)):
     if distribution is None:
         distribution = STANDARD_DISTRIBUTION
     res = {}

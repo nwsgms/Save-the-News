@@ -59,7 +59,7 @@ def test_news_fetching():
     fetch_news()
     session.commit()
     for entry in NewsEntry.query.all():
-        print len(entry.teaser_image)
+        pass
     
 
 
