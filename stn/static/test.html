@@ -30,8 +30,8 @@
   </head>
   <body>
     <h1>Save the news</h1>
-    <!--canvas id="arena" width="960" height="480"></canvas-->
-    <canvas id="arena" width="480" height="320"></canvas>
+    <canvas id="arena" width="960" height="480"></canvas>
+    <!--canvas id="arena" width="480" height="320"></canvas-->
 
     <script type="text/javascript">
       $(function() {
@@ -43,6 +43,7 @@
                80,
                canvas, 30.0, canvas.width / 960.0);
            window.game.start();
+           setTimeout(adjust_score, 500);
         }
       ); 
       window.game.debug = true;
@@ -67,11 +68,11 @@
           if(score === undefined) {
               return;
           }
-          score = ((score + 1) % 100) + 1;
+          score = (score % 100) + 1;
+          console.log(score);
           window.game.score = score;
-          setTimeout(.5, adjust_score);
+          setTimeout(adjust_score, 500);
       }
-      setTimeout(.5, adjust_score);
       });      
     </script>
   </body>

@@ -7,8 +7,12 @@ Summary.prototype = _.extend(
     {},
     GameBase.prototype,
     {
-	PERCENT_LEFT : 30,
-	PERCENT_TOP : 30,
+	PERCENT_SIZE: 180,
+	PERCENT_LEFT : 20,
+	PERCENT_TOP : 0,
+	BTNS_TOP : 480 - 110,
+	BTN_BACK_LEFT : 20,
+	VSPACE : 5,
 
 	__init__ : function(score, canvas, fps, scale) {
             _.bindAll(this, "back", "mousdown", "mouseup");
@@ -16,7 +20,12 @@ Summary.prototype = _.extend(
 	    
 	    this.score = score;
 	    this.buttons = [];
-	    this.buttons.push(new Button("btn_back", 100, 100));
+	    this.buttons.push(new Button(
+				  "btn_back", 
+				  this.BTNS_TOP,
+				  this.BTN_BACK_LEFT
+			      )
+			     );
 	    this.buttons[this.buttons.length - 1].bind("click", this.back);
 	    
 	},
@@ -27,9 +36,17 @@ Summary.prototype = _.extend(
             var bg = rm.get("start_bg");
             ctx.drawImage(bg, 0, 0);
 	    
-	    ctx.font = "80px optimer";
+	    ctx.font = this.PERCENT_SIZE + "px optimer";
 	    ctx.fillStyle = "#fff";
-            ctx.fillText(this.score + "%", this.PERCENT_LEFT, PERCENT_TOP + 80);
+            ctx.fillText(this.score + "%", this.PERCENT_LEFT, 
+			 this.PERCENT_TOP + this.PERCENT_SIZE);
+	    var small_size = Math.ceil(this.PERCENT_SIZE / 3);
+	    ctx.font = small_size + "px optimer";
+            ctx.fillText("echte T*gesschau", this.PERCENT_LEFT + this.PERCENT_SIZE / 20, 
+			 this.PERCENT_TOP + this.PERCENT_SIZE +
+			 small_size + this.VSPACE
+			);
+	    
 	    _.forEach(
 		this.buttons,
 		_.bind(
