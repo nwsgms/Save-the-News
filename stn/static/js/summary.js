@@ -14,8 +14,18 @@ Summary.prototype = _.extend(
 	BTN_BACK_LEFT : 20,
 	VSPACE : 5,
 
+	DDORF_LEFT : 600,
+	DDORF_TOP : 10,
+
+	ZE_DDORFS : [
+	    [10, "ddorf_surprised"],
+	    [20, "ddorf_unsatisfied"],
+	    [80, "ddorf_neutral"],
+	    [95, "ddorf_happy"]
+	],
+
 	__init__ : function(score, canvas, fps, scale) {
-            _.bindAll(this, "back", "mousdown", "mouseup");
+            _.bindAll(this, "back", "mousdown", "mouseup", "element4score");
             GameBase.prototype.__init__.call(this, canvas, fps, scale);
 	    
 	    this.score = score;
@@ -46,7 +56,10 @@ Summary.prototype = _.extend(
 			 this.PERCENT_TOP + this.PERCENT_SIZE +
 			 small_size + this.VSPACE
 			);
-	    
+
+	    var ddorf = this.element4score(this.ZE_DDORFS);
+	    ddorf = rm.get(ddorf);
+	    ctx.drawImage(ddorf, this.DDORF_LEFT, this.DDORF_TOP);
 	    _.forEach(
 		this.buttons,
 		_.bind(
@@ -60,6 +73,16 @@ Summary.prototype = _.extend(
 	
 	back : function() {
 	    this.goto_stage(StartScreen);
+	},
+
+	element4score : function(array) {
+	    var res = array[0][1];
+	    for(var i in array) {
+		if(this.score >= array[i][0]) {
+		    res = array[i][1];
+		}
+	    }
+	    return res;
 	}
     },
     ButtonMixin
