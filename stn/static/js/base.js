@@ -9,7 +9,7 @@ SCALED = false;
 GameBase.prototype = {
     __init__ : function(canvas, fps, scale) {
 	_.bindAll(this, "render_debug_info", "game_over_screen", "start",
-		  "run", "schedule", "mousepos");
+		  "run", "schedule", "mousepos", "goto_stage");
 	if(scale === undefined) {
 	    scale = { x : 1.0, y : 1.0};
 	}
@@ -17,6 +17,13 @@ GameBase.prototype = {
 	    scale = { x : scale, y : scale};
 	}
 	this.scale = scale;
+	
+	// adjust our frame to the full width of
+	// the retina display, we scale down
+        var width = canvas.width / this.scale.x;
+        var height = canvas.height / this.scale.y;
+        this.frame = new Rect(0, 0, width, height);
+
 	this.fps = fps;
 	this.canvas = canvas;
         this.ctx = this.canvas.getContext("2d");
@@ -50,7 +57,9 @@ GameBase.prototype = {
         }
 	this.now = t;
 	// reschedule ourselves for the game-loop
+	this.ctx.save();
 	this.loop(elapsed);
+	this.ctx.restore();
 	this.schedule();
     },
 
@@ -123,5 +132,11 @@ GameBase.prototype = {
     schedule : function() {
 	var wait = 1000.0 / this.fps;
         setTimeout(this.run, wait);
+    },
+
+    goto_stage : function(stage) {
+	this.running = false;
+	window.game = new stage(this.canvas, this.fps, this.scale);
+	window.game.start();
     }
 };

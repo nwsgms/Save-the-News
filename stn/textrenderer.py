@@ -109,7 +109,7 @@ def render_text(
     padding=10,
     fontname="arial.ttf",
     fontcolor=(255, 255, 255, 255),
-    backgroundcolor=(0, 0, 255, 200),
+    background_color=(0, 0, 255, 200),
     corner_radius=10):
     text_width = width - padding * 2
     start_size = fontsize
@@ -134,7 +134,7 @@ def render_text(
     image = Image.new("RGBA", (width, height), (0, 0, 0, 0))
     draw = ImageDraw.Draw(image)
 
-    rounded_rect(draw, width, height, corner_radius, backgroundcolor)
+    rounded_rect(draw, width, height, corner_radius, background_color)
     left = padding
     top = padding
     for (tl, tt), line in ops:
@@ -149,6 +149,8 @@ class UnknownFormatException(Exception):
 
 class ImageFormatter(object):
 
+
+    BACKGROUND_COLOR = (0x32, 0x6b, 0x9a, 255)
 
     def __new__(cls, name):
         for sc in cls.__subclasses__():
@@ -167,6 +169,7 @@ class ImageFormatter(object):
             width=self.WIDTH,
             fontsize=self.FONTSIZE,
             vspacing=self.VSPACING,
+            background_color=self.BACKGROUND_COLOR
             )
 
 

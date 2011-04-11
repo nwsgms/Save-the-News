@@ -8,12 +8,6 @@
     <script type="text/javascript" src="js/jquery-1.5.1.js"></script>
     <script type="text/javascript" src="js/underscore.js"></script>
     <script type="text/javascript" src="js/backbone.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.ui.core.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.ui.widget.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.ui.mouse.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.ui.draggable.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.effects.core.js"></script>
-    <script type="text/javascript" src="js/ui/jquery.effects.fade.js"></script>
     <script type="text/javascript" src="js/resources.js"></script>
     <script type="text/javascript" src="js/rect.js"></script>
     <script type="text/javascript" src="js/sprintf.js"></script>
@@ -26,8 +20,10 @@
     <script type="text/javascript" src="js/sorting.js"></script>
     <script type="text/javascript" src="js/image_sorting.js"></script>
     <script type="text/javascript" src="js/animation.js"></script>
+    <script type="text/javascript" src="js/button.js"></script>
     <script type="text/javascript" src="js/game.js"></script>
     <script type="text/javascript" src="js/start.js"></script>
+    <script type="text/javascript" src="js/summary.js"></script>
     <script type="text/javascript" src="js/loader.js"></script>
     <link rel="stylesheet" href="css/test.css" type="text/css" media="all" ></script>
     <title>Save the News</title>
@@ -43,26 +39,10 @@
       window.game = new LoadScreen(
       canvas, 30.0, canvas.width / 960.0,
         function() {
-           window.game = new ImageSortingGame(
-               new TimerDisplay(60.0),
+           window.game = new Summary(
+               80,
                canvas, 30.0, canvas.width / 960.0);
-           get_messages(
-              function(messages) {
-                  var count = _.size(messages);
-                  function cb(message) {
-                     count--;
-                     if(count == 0) {
-                        window.game.set_messages(messages);
-                        window.game.start();
-                        console.log("started game");
-                     } else {
-                        messages[count-1].load_images("iPhone3", cb);
-                     }
-                  }
-                  messages[count-1].load_images("iPhone3", cb);
-              }
-           );
-           
+           window.game.start();
         }
       ); 
       window.game.debug = true;
@@ -81,6 +61,17 @@
          }
       };
       $(canvas).mousedown(mousedown).mousemove(mousemove).mouseup(mouseup);
+
+      function adjust_score() {
+          var score = window.game.score;
+          if(score === undefined) {
+              return;
+          }
+          score = ((score + 1) % 100) + 1;
+          window.game.score = score;
+          setTimeout(.5, adjust_score);
+      }
+      setTimeout(.5, adjust_score);
       });      
     </script>
   </body>
