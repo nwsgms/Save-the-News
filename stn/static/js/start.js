@@ -19,7 +19,8 @@ StartScreen.prototype = _.extend(
 	    start_button.bind("click", this.start_game);
 	    this.buttons.push(start_button);
 	    this.animations = [new Animation("kasten1", .5, 22, 250),
-			       new Animation("kasten2", .5, 224, 250),
+			       new Animation("kasten2", .5, 224 + 115, 250),
+			       //new Animation("kasten2", .5, 224, 250),
 			       //new Animation("kasten3", .5, 517, 250),
 			       new Animation("kasten4", .5, 742, 250)
 			      ];
