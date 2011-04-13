@@ -224,11 +224,11 @@ def newsmuncher():
 
 
 STANDARD_DISTRIBUTION = dict(
-    top=2,
-    international=1,
-    germany=1,
-    economy=1,
-    entertainment=1,
+    top=6,
+    international=3,
+    germany=3,
+    economy=3,
+    entertainment=3,
     )
 
 assert set(STANDARD_DISTRIBUTION.keys()) == set(c for c, _ in CATEGORIES)

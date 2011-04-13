@@ -1,6 +1,7 @@
 from __future__ import absolute_import
 import os
 import random
+from math import ceil
 
 from bottle import (
     route,
@@ -76,5 +77,17 @@ def score():
     ids = request.forms.getall("news[]")
     entries = [NewsEntry.get(id_) for id_ in ids]
     categories = [entry.category for entry in entries]
-    print categories
-    return dict(score=97)
+    full = 75.0 # no fly, no images so far
+    score = .0
+    
+    if categories[0] == "top":
+        score += 15.0
+    for category, match in zip(
+        categories[1:],
+        ["international", "germany", "economy", "entertainment"],
+        ):
+        if category == match:
+            score += 10.0
+    
+
+    return dict(score=int(ceil(score)))

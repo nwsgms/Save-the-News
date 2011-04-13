@@ -80,7 +80,7 @@ Schedule.prototype = _.extend(
                 }
 		this.game.add_animation(
 		    new Animation("add2schedule", 
-				  .2,
+				  .1,
 				  news_item.frame.left, 
 				  news_item.frame.top,
 				  false
@@ -123,7 +123,7 @@ TrashCan.prototype = _.extend(
             if(DropZone.prototype.hit.call(this, news_item)) {
 		this.game.add_animation(
 		    new Animation("crumple", 
-				  .2,
+				  .1,
 				  news_item.frame.left, 
 				  news_item.frame.top,
 				  false
@@ -143,7 +143,7 @@ Game.prototype = _.extend(
     {},
     GameBase.prototype,
     {
-        GRAVITY : 4.0,
+        GRAVITY : 20.0,
         BACKGROUND_COLOR : "#ffa",
         FLOAT_TIME : .8,
         SPAWN_TIME : 2000,
