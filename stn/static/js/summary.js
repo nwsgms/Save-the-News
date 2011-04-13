@@ -12,6 +12,7 @@ Summary.prototype = _.extend(
 	PERCENT_TOP : 0,
 	BTNS_TOP : 480 - 110,
 	BTN_BACK_LEFT : 20,
+	BTN_TWITTER_LEFT : 160,
 	VSPACE : 5,
 
 	DDORF_LEFT : 600,
@@ -25,7 +26,8 @@ Summary.prototype = _.extend(
 	],
 
 	__init__ : function(score, canvas, fps, scale) {
-            _.bindAll(this, "back", "mousdown", "mouseup", "element4score");
+            _.bindAll(this, "back", "mousdown", "mouseup", "element4score",
+		      "tweet");
             GameBase.prototype.__init__.call(this, canvas, fps, scale);
 	    
 	    this.score = score;
@@ -37,9 +39,22 @@ Summary.prototype = _.extend(
 			      )
 			     );
 	    this.buttons[this.buttons.length - 1].bind("click", this.back);
+
+	    this.buttons.push(new Button(
+				  "btn_twitter", 
+				  this.BTNS_TOP,
+				  this.BTN_TWITTER_LEFT
+			      )
+			     );
+	    this.buttons[this.buttons.length - 1].bind("click", this.tweet);
 	    
 	},
-	
+
+	tweet : function() {
+	    var tweet = "Hat %d%% bei #savethenews erreicht!"
+	    window.location = "http://www.twitter.com/share?text=" + tweet;
+	},
+
 	loop : function(elapsed) {
             // clear background
             var ctx = this.ctx;

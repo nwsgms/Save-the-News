@@ -20,7 +20,7 @@ StartScreen.prototype = _.extend(
 	    this.buttons.push(start_button);
 	    this.animations = [new Animation("kasten1", .5, 22, 250),
 			       new Animation("kasten2", .5, 224, 250),
-			       new Animation("kasten3", .5, 517, 250),
+			       //new Animation("kasten3", .5, 517, 250),
 			       new Animation("kasten4", .5, 742, 250)
 			      ];
 	},
