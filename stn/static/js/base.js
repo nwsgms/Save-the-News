@@ -43,6 +43,7 @@ GameBase.prototype = {
 	}
 
 	this.running = false;
+	this.stopped = false;
 	this.debug = false;
         this.max_fps = 0;
         this.min_fps = 1000;
@@ -50,7 +51,7 @@ GameBase.prototype = {
 
 
     run : function() {
-        if(!this.running)
+        if(!this.running || this.stopped)
 	    return;
         var t = new Date().getTime();
 	// skip the first frame
